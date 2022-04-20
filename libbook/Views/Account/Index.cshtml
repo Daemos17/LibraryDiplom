@@ -1,0 +1,115 @@
+﻿@model datamodel.vAccount
+
+@{
+    ViewBag.Title = "Home Page";
+}
+<div>
+    <h4>Информация о пользователе</h4>
+</div>
+<ul>
+    <li>
+        Имя:@Model.FirstName
+    </li>
+    <li>
+        Фамилия:@Model.SecondName
+    </li>
+    <li>
+        Отчество:@Model.LastName
+    </li>
+    <li>
+        Телефон:@Model.Phone
+    </li>
+    <li>
+        Логин входа:@Model.Login
+    </li>
+    <li>
+        Дата регистрации:@Model.RegistrationDate
+    </li>
+</ul>
+
+<div>
+    <h4>Управление профилем</h4>
+</div>
+<button type="button" class="btn btn-secondary">Сменить логин или пароль</button>
+@Html.ActionLink("Изменить персональные данные", "Edit", new { id = Model.Id })
+@Html.ActionLink("Выход", "Logout")
+@if (Model.IsAdmin.Value == true)
+{
+    <div>
+        <h4>Управление другими профилями</h4>
+    </div>
+    <div id="modDialog" class="modal fade">
+        <div id="dialogContent" class="modal-dialog"></div>
+    </div>
+    
+    <table class="table table-hover" id="EmplTable">
+        <thead>
+            <tr>
+                <th scope="col">№</th>
+                <th scope="col">Фамилия</th>
+                <th scope="col">Имя</th>
+                <th scope="col">Отчество</th>
+                <th scope="col">Дата последнего входа</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+}
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        //выбор строки из таблицы сотрудников библиотеки
+        $('#EmplTable').on('click', 'tbody tr', function (event) {
+            console.log($(this).attr('id'));
+
+            $('#EmplTable tr').removeClass('active');
+            $(this).addClass('active');
+        });
+
+        if (@Model.IsAdmin.Value.ToString().ToLower() ===true) {
+            $.get("/Account/GetAllAccounts", {}, function (data) {
+                createTableEmpl(data);
+            });
+        }
+
+        //заполнение таблицы сотрудников библиотеки
+        function createTableEmpl(data) {
+            var tableRows = $('#EmplTable').find('tr');
+            for (var i = 1; i < tableRows.length; i++) {
+                tableRows[i].remove();
+            }
+
+
+            for (i = 0; i < data.accounts.length; i++) {
+                var rd = data.accounts[i].RegistrationDate == null ? "никогда" : data.accounts[i].RegistrationDate;
+                $('#EmplTable > tbody').append('<tr id=' + data.accounts[i].Id + '></tr>');
+                $('#EmplTable > tbody > tr:last').append('<td id="EmplId" hidden>' + data.accounts[i].Id + '</td>');
+                $('#EmplTable > tbody > tr:last').append('<td>' + (i + 1) + '</td>');
+                $('#EmplTable > tbody > tr:last').append('<td>' + data.accounts[i].FirstName + '</td>');
+                $('#EmplTable > tbody > tr:last').append('<td>' + data.accounts[i].SecondName + '</td>');
+                $('#EmplTable > tbody > tr:last').append('<td>' + data.accounts[i].LastName + '</td>');
+                $('#EmplTable > tbody > tr:last').append('<td>' + rd + '</td>');
+                $('#EmplTable > tbody > tr:last').append('<a href=/Account/Edit/' + data.accounts[i].Id + '>Редактировать</a>');
+                $('#EmplTable > tbody > tr:last').append('<a href=/Account/Delete/' + data.accounts[i].Id + ' id="myLink">Удалить</a>');
+               
+
+
+            }
+
+        }
+
+        $("#myLink").click(function (e) {
+            console.log(e);
+        e.preventDefault();
+        $.get(this.href, function (data) {
+                $('#dialogContent').html(data);
+            $('#modDialog').modal('show');
+        });
+    });
+    });
+
+</script>
+

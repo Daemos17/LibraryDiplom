@@ -1,0 +1,42 @@
+﻿@{
+    Layout = null;
+}
+<div class="modal-dialog" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Загрузка списка преподавателей</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        @*<form id="addTeacherForm" action="/Teacher/AddTeacher" autocomplete="off">
+            <div class="modal-body">
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                <button type="button" onclick="form_submit()" class="btn btn-primary" data-dismiss="modal" id="AddBtn">Добавить</button>
+            </div>
+        </form>*@
+
+
+    <form id="loadList" action="/Teacher/LoadListTeacher" method="post" enctype="multipart/form-data">
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="exampleFormControlFile1">Выберите файл со списком преподавателей</label>
+                <label>Файл должен содержать фамилию, имя, отчество и комментарий, разделенными ;</label>
+                <input type="file" class="form-control-file" id="exampleFormControlFile1">
+            </div>
+        </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                <button onclick="form_submit()" type="button" class="btn btn-primary" data-dismiss="modal" id="AddBtn">Загрузить</button>
+            </div>
+    </form>
+    </div>
+</div>
+<script type="text/javascript">
+    function form_submit() {
+        document.getElementById("loadList").submit();
+    }
+</script>

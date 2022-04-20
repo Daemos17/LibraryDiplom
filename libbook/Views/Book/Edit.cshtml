@@ -1,0 +1,64 @@
+﻿@model datamodel.Book
+@{
+    ViewBag.Title = "Редактирование";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+</head>
+<body>
+
+    <h2>Редактирование данных книги</h2>
+
+    @using (Html.BeginForm())
+    {
+<fieldset>
+    <legend>Книга</legend>
+
+    @Html.HiddenFor(model => model.Id)
+
+    <p>
+        Название
+        @Html.EditorFor(model => model.BookName)
+    </p>
+
+    <p>
+        Год
+        @Html.EditorFor(model => model.Year)
+    </p>
+
+    <p>
+        Количество
+        @Html.EditorFor(model => model.Count)
+    </p>
+
+
+    <p>
+        Автор <br />
+        @Html.DropDownListFor(model => model.Author_id, ViewBag.Authors as SelectList)
+    </p>
+
+    <p>
+        Издатель <br />
+        @Html.DropDownListFor(model => model.Maker_id, ViewBag.Makers as SelectList)
+    </p>
+
+
+
+    <p>
+        <input type="submit" value="Сохранить" />
+    </p>
+</fieldset>
+    }
+    <div>
+        @Html.ActionLink("Вернуться к справочнику книг", "Index")
+    </div>
+
+</body>
+</html>

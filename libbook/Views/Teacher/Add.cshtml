@@ -1,0 +1,44 @@
+﻿@using datamodel
+@model vTeacher
+@{
+    Layout = null;
+}
+<div class="modal-dialog" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Добавление преподавателя</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <form id="addTeacherForm" action="/Teacher/AddTeacher" autocomplete="off">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="inputFirstname">Введите фамилию</label>
+                    <input type="text" class="form-control" name="FirstName" placeholder="фамилия">
+                </div>
+                <div class="form-group">
+                    <label for="inputSecondname">Введите имя</label>
+                    <input type="text" class="form-control" name="SecondName" placeholder="имя">
+                </div>
+                <div class="form-group">
+                    <label for="inputLastname">Введите отчество</label>
+                    <input type="text" class="form-control" name="LastName" placeholder="отчество">
+                </div>
+                <div class="form-group">
+                    <label for="inputComment">Введите комментарий</label>
+                    <input type="text" class="form-control" name="Comment" placeholder="комментарий">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                <button type="button" onclick="form_submit()" class="btn btn-primary" data-dismiss="modal" id="AddBtn">Добавить</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script type="text/javascript">
+    function form_submit() {
+        document.getElementById("addTeacherForm").submit();
+    }
+</script>

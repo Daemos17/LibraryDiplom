@@ -1,0 +1,37 @@
+﻿@model datamodel.vAccount
+@{
+    ViewBag.Title = "Home Page";
+}
+
+@using (Html.BeginForm())
+{
+
+    @Html.AntiForgeryToken();
+    <input type="hidden" name="returnUrl" value="@ViewBag.returnUrl" />
+    @*<div class="form-group">
+            <label>Логин</label>
+            @Html.TextBoxFor(x => x.Login, new { @class = "form-control" })
+        </div>*@
+<div class="form-group">
+    Фамилия:@Html.TextBox("FirstName", Model.FirstName)
+</div>
+<div class="form-group">
+    Имя:@Html.TextBox("SecondName", Model.SecondName)
+</div>
+<div class="form-group">
+    Отчество:@Html.TextBox("LastName", Model.LastName)
+</div>
+<div class="form-group">
+    Телефон:@Html.TextBox("Phone", Model.Phone)
+</div>
+<div class="form-group">
+    Логин входа:@Html.TextBox("Login", Model.Login)
+</div>
+<div class="form-group">
+    Email:@Html.TextBox("Email", Model.Email)
+</div>
+    <button class="btn btn-primary" type="submit">Сохранить</button>
+}
+
+
+

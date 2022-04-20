@@ -1,0 +1,153 @@
+﻿
+@model IEnumerable<datamodel.Book>
+@{
+    Layout ="~/Views/Shared/_Layout.cshtml";
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <link href="~/Content/Site.css" type="text/css" />
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    <style>
+        .centerForm {
+            margin-top: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+    <title>Index</title>
+</head>
+<body>
+
+    <form asp-controller="Book" asp-action="Index">
+        <p>
+            Название книги: <input type="text" name="searchString" />
+            <input type="submit" value="Filter" />
+        </p>
+    </form>
+    <div>
+
+        <table class="table">
+            <tr>
+                <th>№</th>
+                <th>Название</th>
+                <th>Автор</th>
+                <th>Издатель</th>
+                <th>Год издания</th>
+                <th>Кол-во</th>
+                <th>Действия</th>
+
+            </tr>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Id)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.BookName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Author.FullName)
+                    </td>
+
+
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Maker.MakerName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Year.Value)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Count)
+                    </td>
+                    <td>
+                        @Html.ActionLink("Редактировать", "Edit", new { id = item.Id }) |
+                        @Html.ActionLink("Удалить", "Delete", new { id = item.Id })
+                    </td>
+                </tr>
+            }
+        </table>
+
+        @Html.ActionLink("Добавить +", "Add", "Book")
+
+    </div>
+
+
+
+
+
+    <div class="form-group">
+        <label for="bookName">Название книги</label>
+        <input type="text" class="form-control" id="bookName" aria-describedby="bookHelp" placeholder="Введите название книги">
+        <small id="bookHelp" class="form-text text-muted">Начните название книги или автора книги</small>
+    </div>
+    <table class="table table-hover" id="bookTable">
+        <thead>
+            <tr>
+                <th scope="col">№</th>
+                <th scope="col">Автор</th>
+                <th scope="col">Название</th>
+                <th scope="col">Год выпуска</th>
+                <th scope="col">Количество в наличии</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            //выбор строки из таблицы книг
+            $('#bookTable').on('click', 'tbody tr', function (event) {
+                console.log($(this).attr('id'));
+                $('#bookTable tr').removeClass('active');
+                $(this).addClass('active');
+            });
+
+            var bookInput = $('#bookName');
+
+            //ввод в поле книги
+            bookInput.keyup(function () {
+                var t = bookInput.val();
+                if (t.length >= 3) {
+                    $.get("/Book/Autocomplete", {
+                        term: t
+                    }, function (data) {
+                        createTableBook(data);
+                    });
+                }
+            });
+
+            //заполнение таблицы книг
+            function createTableBook(data) {
+                var tableRows = $('#bookTable').find('tr');
+                for (var i = 1; i < tableRows.length; i++) {
+                    tableRows[i].remove();
+                }
+                for (i = 0; i < data.books.length; i++) {
+                    $('#bookTable > tbody').append('<tr id=' + data.books[i].Id + '></tr>');
+                    $('#bookTable > tbody > tr:last').append('<td id="bookId" hidden>' + data.books[i].Id + '</td>');
+                    $('#bookTable > tbody > tr:last').append('<td>' + (i + 1) + '</td>');
+                    $('#bookTable > tbody > tr:last').append('<td>' + data.books[i].BookName + '</td>');
+
+                }
+                if (data.books.length == 1) {
+                    $('#bookTable > tbody > tr:last').click();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

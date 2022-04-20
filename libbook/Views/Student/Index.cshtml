@@ -1,0 +1,180 @@
+﻿@using datamodel
+@model IEnumerable<vStudent>
+@{
+    ViewBag.Title = "Index";
+}
+<script language="javascript" type="text/javascript">
+    window.onbeforeunload = function () {
+            // This function does nothing.  It won't spawn a confirmation dialog
+            // But it will ensure that the page is not cached by the browser.
+    }
+</script>
+<div class="form-group">
+    <label for="fiostudent">ФИО Студента</label>
+    <input type="text" class="form-control" id="fiostudent" aria-describedby="fiostudentHelp" placeholder="Введите фио студента">
+    <small id="fiostudentHelp" class="form-text text-muted">Начните вводить фамилию студента. Через пробел можно указать Имя и Отчество</small>
+</div>
+
+<div>
+    <a href="Add" id="addLink" class="btn btn-primary stretched-link">Добавить</a>
+    @*<a href="LoadList" id="addListLink" class="btn btn-primary stretched-link">Загрузить</a>*@
+
+    <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+        Загрузить
+    </button>
+    <div class="collapse" id="collapseExample">
+        <div class="card card-body">
+            @using (Html.BeginForm("Upload", "Student", FormMethod.Post, new { enctype = "multipart/form-data" }))
+            {
+                <div class="form-group">
+                    <label for="exampleFormControlFile1">Выберите файл со списком преподавателей</label>
+                    <label>Файл должен содержать фамилию, имя, отчество, группу и дату зачисления, разделенными ;</label>
+
+                </div>
+                <input type="file" name="file" accept=".csv,.txt,.xls,.xlsx" />
+                <input type="submit" class="btn btn-primary" value="Загрузить" />
+            }
+        </div>
+    </div>
+</div>
+
+<div id="addDialog" class="modal fade">
+    <div id="dialogContentAdd" class="modal-dialog"></div>
+</div>
+
+<div id="deleteDialog" class="modal fade">
+    <div id="dialogContentDelete" class="modal-dialog"></div>
+</div>
+
+<div id="EditDialog" class="modal fade">
+    <div id="dialogContentEdit" class="modal-dialog"></div>
+</div>
+
+<div id="loadListDialog" class="modal fade">
+    <div id="dialogContentLoad" class="modal-dialog"></div>
+</div>
+
+<table class="table table-hover" id="studentTable">
+    <thead>
+        <tr id="tableHead">
+            <th scope="col">№</th>
+            <th scope="col">Фамилия</th>
+            <th scope="col">Имя</th>
+            <th scope="col">Отчество</th>
+            <th scope="col">Комментарий</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            int i = 1;
+            foreach (var student in Model)
+            {
+                <tr id="@student.Id" class="student">
+                    <td>@i</td>
+                    <td>@student.FirstName</td>
+                    <td>@student.SecondName</td>
+                    <td>@student.LastName</td>
+                    <td>@student.GroupLittleName</td>
+                    <td>
+                        <button type="button" onclick='ShowDelete(@student.Id)' class="btn btn-link">Удалить</button>
+                    </td>
+                    <td>
+                        <button type="button" onclick='ShowEdit(@student.Id)' class="btn btn-link">Редактировать</button>
+                    </td>
+                </tr>
+                i++;
+            }
+        }
+
+    </tbody>
+</table>
+
+
+<script type="text/javascript">
+    function ShowDelete(studentId) {
+        $('#studentTable tr').removeClass('active');
+        $.get("Delete/"+studentId, function (data) {
+            $('#dialogContentDelete').html(data);
+            $('#deleteDialog').modal('show');
+        });
+    }
+
+    function ShowEdit(studentId) {
+        $.get("Edit/" + studentId, function (data) {
+            $('#dialogContentEdit').html(data);
+            $('#EditDialog').modal('show');
+        });
+    }
+
+    $(document).ready(function () {
+        $("#addLink").click(function (e) {
+            e.preventDefault();
+            $.get(this.href, function (data) {
+                $('#dialogContentAdd').html(data);
+                $('#addDialog').modal('show');
+            });
+        });
+
+        $("#addListLink").click(function (e) {
+            e.preventDefault();
+            $.get(this.href, function (data) {
+                $('#dialogContentLoad').html(data);
+                $('#loadListDialog').modal('show');
+            });
+        });
+        //выбор из таблицы студентов
+        $('#studentTable').on('click', 'tbody tr', function (event) {
+            console.log($(this).attr('id'));
+
+            $('#studentTable tr').removeClass('active');
+            $(this).addClass('active');
+        });
+
+        //ввод в поле фио
+        var studentInput = $('#fiostudent');
+
+        studentInput.keyup(function () {
+            var t = studentInput.val();
+            if (t.length >= 3) {
+                $('#studentTable').find('tr').removeClass('active');
+                $.get("/student/Autocomplete", {
+                    term: t
+                }, function (data) {
+                    createTablestudent(data);
+                });
+            }
+            if (t.length == 0) {
+                $('#studentTable').find('tr').removeClass('active');
+                $('#studentTable').find('tr[class=student]').show();
+
+                $('#studentTable').find('tr[class=autoselectRow]').remove();
+                }
+            }
+        );
+
+        //заполнение таблицы студентов
+    function createTablestudent(data) {
+        var tableRows = $('#studentTable').find('tr[class=student]').hide();
+            //for (var i = 1; i < tableRows.length; i++) {
+            //    tableRows[i].hidden();
+            //}
+
+            for (i = 0; i < data.student.length; i++) {
+                $('#studentTable > tbody').append('<tr id=' + data.student[i].Id + ' class=autoselectRow></tr>');
+                $('#studentTable > tbody > tr:last').append('<td id="studentId" hidden>' + data.student[i].Id + '</td>');
+                $('#studentTable > tbody > tr:last').append('<td>' + (i + 1) + '</td>');
+                $('#studentTable > tbody > tr:last').append('<td>' + data.student[i].FirstName + '</td>');
+                $('#studentTable > tbody > tr:last').append('<td>' + data.student[i].SecondName + '</td>');
+                $('#studentTable > tbody > tr:last').append('<td>' + data.student[i].LastName + '</td>');
+                $('#studentTable > tbody > tr:last').append('<td>' + data.student[i].Comment + '</td>');
+                $('#studentTable > tbody > tr:last').append('<td><a href=student/Delete/' + data.student[i].Id + '>Удалить</a></td>');
+                $('#studentTable > tbody > tr:last').append('<td><a href=student/Edit/'+data.student[i].Id+'>Редактировать</a></td>');
+
+            }
+            if (data.student.length == 1) {
+                $('#studentTable > tbody > tr:last').click();
+            }
+        }
+    });
+
+</script>

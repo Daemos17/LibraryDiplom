@@ -1,0 +1,45 @@
+﻿@using datamodel
+@model vTeacher
+@{
+    Layout = null;
+}
+<div class="modal-dialog" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Редактирование преподавателя</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <form id="editTeacherForm" action="/Teacher/EditTeacher" autocomplete="off" method="post">
+            <div class="modal-body">
+                <input type="hidden" name="Id" value="@Model.Id" />
+                <div class="form-group">
+                    <label for="inputFirstname">Введите фамилию</label>
+                    <input type="text" class="form-control" name="FirstName" placeholder="фамилия" value="@Model.FirstName">
+                </div>
+                <div class="form-group">
+                    <label for="inputSecondname">Введите имя</label>
+                    <input type="text" class="form-control" name="SecondName" placeholder="имя" value="@Model.SecondName">
+                </div>
+                <div class="form-group">
+                    <label for="inputLastname">Введите отчество</label>
+                    <input type="text" class="form-control" name="LastName" placeholder="отчество" value="@Model.LastName">
+                </div>
+                <div class="form-group">
+                    <label for="inputComment">Введите комментарий</label>
+                    <input type="text" class="form-control" name="Comment" placeholder="комментарий" value="@Model.Comment">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                <button type="button" onclick="form_submit()" class="btn btn-primary" data-dismiss="modal" id="AddBtn">Сохранить</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script type="text/javascript">
+    function form_submit() {
+        document.getElementById("editTeacherForm").submit();
+    }
+</script>

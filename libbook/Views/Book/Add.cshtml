@@ -1,0 +1,68 @@
+﻿@model datamodel.Book
+
+@{
+    ViewBag.Title = "Добавление книги";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+</head>
+<body>
+    <div>
+        <h2>Добавление новой книги </h2>
+
+        @using (Html.BeginForm())
+        {
+    <fieldset>
+        <legend>Новая книга</legend>
+
+        <p>
+            Название  <br />
+            @Html.EditorFor(model => model.BookName)
+        </p>
+
+        <p>
+            Год  <br />
+            @Html.EditorFor(model => model.Year)
+        </p>
+
+        <p>
+            Количество  <br />
+            @Html.EditorFor(model => model.Count)
+        </p>
+
+        <p>
+            Комментарий  <br />
+            @Html.EditorFor(model => model.Comment)
+        </p>
+
+        <p>
+            Автор <br />
+            @Html.DropDownListFor(model => model.Author_id, ViewBag.Authors as SelectList)
+        </p>
+
+        <p>
+            Издательство <br />
+            @Html.DropDownListFor(model => model.Maker_id, ViewBag.Makers as SelectList)
+        </p>
+
+        <form asp-controller="Book" asp-action="Create" method="post">
+            <input type="submit" value="Добавить книгу" />
+        </form>
+
+    </fieldset>
+        }
+        <div>
+            @Html.ActionLink("К списку книг", "Index")
+        </div>
+
+
+    </div>
+</body>
+</html>
