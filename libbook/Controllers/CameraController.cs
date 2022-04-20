@@ -35,12 +35,8 @@ namespace libbook.Controllers
         public ActionResult Capture(string name)
         {
 
-            
 
-            IFormFileCollection files =HttpContext.Request.Files.T;
-
-           
-
+            var files = request.Form.Files;
 
             if (files != null)
             {
