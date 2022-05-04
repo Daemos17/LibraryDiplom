@@ -8,10 +8,20 @@ using Microsoft.AspNetCore.Hosting;
 using System.IO;
 using Microsoft.AspNetCore.Http;
 
+using libbook.Content;
+using System.Drawing;
+using System.Windows.Media.Imaging;
+using System.Net;
+using ZXing.Common;
+using ZXing;
+using System.Web.UI;
+
 namespace libbook.Controllers
 {
     public class CameraController : Controller
     {
+
+        Result ressultss { get; set; }
 
         private readonly IHostingEnvironment _environment;
         // GET: Camera
@@ -24,6 +34,14 @@ namespace libbook.Controllers
         {
 
         }
+
+        public ActionResult Index(string result)
+        {
+          
+            ViewBag.Result = result;
+            return View();
+        }
+
         [HttpGet]
         public ActionResult Capture()
         {
@@ -32,52 +50,41 @@ namespace libbook.Controllers
 
 
         [HttpPost]
-        public ActionResult Capture(string name)
+        public ActionResult Capture(string filePath)
         {
-
-
-            var files = request.Form.Files;
-
-            if (files != null)
+            Bitmap image ;
+            Result result;
+            string imagePath = "C:/users/daniil/downloads/" + filePath;
+            image = (Bitmap)Bitmap.FromFile("storage/emulated/0/Download" + filePath);
+            GaussianBlur blur = new GaussianBlur(image);
+            image = blur.Process(2);
+            var options = new DecodingOptions { PossibleFormats = new List<BarcodeFormat> { BarcodeFormat.QR_CODE }, TryHarder = true };
+            using (image)
             {
-                foreach (var file in files)
-                {
-                    if (file.Length > 0)
-                    {
-                        // Getting Filename  
-                        var fileName = file.FileName;
-                        // Unique filename "Guid"  
-                        var myUniqueFileName = Convert.ToString(Guid.NewGuid());
-                        // Getting Extension  
-                        var fileExtension = Path.GetExtension(fileName);
-                        // Concating filename + fileExtension (unique filename)  
-                        var newFileName = string.Concat(myUniqueFileName, fileExtension);
-                        //  Generating Path to store photo   
-                        var filepath = Path.Combine(_environment.WebRootPath, "CameraPhotos") + $@"\{newFileName}";
+                LuminanceSource source;
+                source = new BitmapLuminanceSource(image);
+                BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
 
-                        if (!string.IsNullOrEmpty(filepath))
-                        {
-                            // Storing Image in Folder  
-                            StoreInFolder(file, filepath);
-                        }
+                 result = new MultiFormatReader().decode(bitmap);
 
-                        var imageBytes = System.IO.File.ReadAllBytes(filepath);
-                        if (imageBytes != null)
-                        {
-                            // Storing Image in Folder  
 
-                        }
+                
+                var reader = new BarcodeReader(null, null, ls => new GlobalHistogramBinarizer(ls)) { AutoRotate = false, TryInverted = false, Options = options };
+                var result1 = reader.Decode(image);
 
-                    }
-                }
-                return Json(true);
-            }
-            else
-            {
-                return Json(false);
+               
             }
 
+        
 
+            //if (result == null)
+            //    return new ContentResult() { Content = "<script language='javascript' type='text/javascript'>alert('Try Again!');</script>" };
+          
+            
+            return Json(new { redirectToUrl = Url.Action("Index", "Camera",new { result=result}) });
+
+            //return RedirectToAction("Index", new { result =result});
+           
         }
       
         

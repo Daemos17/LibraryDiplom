@@ -1,0 +1,14 @@
+﻿@model libbook.ViewModels.BarCodeViewModel
+ @{
+    ViewBag.Title = "GenerateQrCode";
+}
+
+<h2>Сгенерированный Qr - код</h2>
+@{
+    if (Model != null)
+    {
+        
+        <img src="@String.Format("data:image/png;base64,{0}", Convert.ToBase64String(Model.QrCodeImage))" width="250" height="250" />
+    }
+}
+

@@ -34,6 +34,10 @@ public partial class Book
 
     public Nullable<int> Category_id { get; set; }
 
+    public Nullable<bool> IsReserved { get; set; }
+
+    public string GUID { get; set; }
+
 
 
     public virtual Author Author { get; set; }

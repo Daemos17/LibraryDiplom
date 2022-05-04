@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using datamodel;
+using ZXing;
+using ZXing.QrCode;
+using ZXing.Rendering;
 
 namespace Services
 {
@@ -32,8 +36,15 @@ namespace Services
             return db.Makers;
         }
 
+        public IEnumerable<datamodel.Category> GetAllCategories()
+        {
+
+            return db.Categories;
+        }
+
         public  void CreateBook(datamodel.Book book)
         {
+            var guid = Guid.NewGuid().ToString();
             var newBook = new datamodel.Book()
             {
                 Author_id = book.Author_id,
@@ -41,17 +52,44 @@ namespace Services
                 Maker_id = book.Maker_id,
                 Year = book.Year,
                 Count = book.Count,
-                Comment=book.Comment
+                Comment = book.Comment,
+                GUID = guid,
+                IsReserved=false,
+                Category_id=book.Category_id
                 
             };
-
-
             db.Books.Add(newBook);
 
          db.SaveChangesAsync();
         }
 
+        public PixelData GenerateCode(int bookId)
+        {
+        
+            var book = db.Books.Find(bookId);
 
+            if (book != null)
+            {
+                var qrCodeWriter = new ZXing.BarcodeWriterPixelData
+                {
+                    Format = ZXing.BarcodeFormat.QR_CODE,
+                    Options = new QrCodeEncodingOptions
+                    {
+                        Height = 250,
+                        Width = 250,
+                        Margin = 0
+                    }
+                };
+
+                var result = qrCodeWriter.Write(book.GUID);
+                
+                return result;
+            }
+
+            return null;
+
+           
+        }
 
         public datamodel.Book GetById(int id)
         {

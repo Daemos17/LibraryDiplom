@@ -48,6 +48,11 @@
         </p>
 
         <p>
+            Категория <br />
+            @Html.DropDownListFor(model => model.Category_id, ViewBag.Categories as SelectList)
+        </p>
+
+        <p>
             Издательство <br />
             @Html.DropDownListFor(model => model.Maker_id, ViewBag.Makers as SelectList)
         </p>

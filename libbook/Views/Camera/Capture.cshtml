@@ -43,9 +43,10 @@
             <div class="panel-heading">Camera</div>
             <div class="panel-body">
                 <div id="my_camera"></div>
-                
+
                 <form>
-                    <input type="button" class="btn btn-success" value="Take Snapshot" onClick="take_snapshot()">
+                    <input type="button" class="btn btn-success" value="Take Snapshots" onClick="take_snapshot()">
+                  
                 </form>
 
             </div>
@@ -63,38 +64,94 @@
     </div>
 
     <div class="col-md-2">    </div>
-    
+
     <script src="~/Scripts/webcamjs/webcam.js"></script>
-    
+    <script src="~/Scripts/jquery-3.4.1.min.js"></script>
     <script language="JavaScript">
         Webcam.set({
+            
             width: 320,
             height: 240,
             image_format: 'jpeg',
-            jpeg_quality: 90
+            jpeg_quality: 90,
+         facingMode: { exact: 'environment' }
+        });
+        Webcam.set('constraints', {
+            facingMode: "environment"
         });
         Webcam.attach('#my_camera');
     </script>
 
-     
-    <script language="JavaScript">
+
+    <script lang="JavaScript">
+
+
+        var today = new Date();
+        var dd = String(today.getDate()).padStart(2, '0');
+        var mm = String(today.getMonth() + 1).padStart(2, '0'); 
+        var yyyy = today.getFullYear();
+        var hr = today.getHours();
+        var min = today.getMinutes();
+        var sec = today.getSeconds();
+
+        today = mm + '_' + dd + '_' + yyyy + '_' + hr + '_' + min+'_'+sec;
+
+        var name = today + '.jpg';
+
         function take_snapshot() {
             // take snapshot and get image data
             Webcam.snap(function (data_uri) {
                 // display results in page
                 document.getElementById('results').innerHTML =
-                    '<img src="' +
+                    '<img id="imageprev" src="' +
                     data_uri +
                     '"/>';
+              
+                downloadImage(today, data_uri);
+                submitForm(name);
 
-                Webcam.upload(data_uri,
-                    '/Camera/Capture',
-                    function (code, text) {
-                        alert('Photo Captured');
-                    });
             });
+
+  
+        }
+
+         function submitForm(data_uri) {
+
+             var model = data_uri;
+
+
+
+            jQuery.ajax({
+                type: "POST",
+                url: "@Url.Action("Capture","Camera")",
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({ filePath: model }),
+                success: function (response) {
+                    if (response) {              
+                        window.location.href = response.redirectToUrl;
+                    }
+                },
+                failure: function (response) {
+                    alert(errMsg);
+                }
+            });
+
+        }
+        downloadImage = function (name, datauri) {
+            var a = document.createElement('a');
+            a.setAttribute('download', name );
+            a.setAttribute('href', datauri);
+            a.click();
         }
     </script>
+    
+   
+
+
+
+
+
 
 </body>
 </html>

@@ -48,32 +48,36 @@
             </tr>
             @foreach (var item in Model)
             {
-                <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Id)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.BookName)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Author.FullName)
-                    </td>
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.BookName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Author.FullName)
+            </td>
 
 
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Maker.MakerName)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Year.Value)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Count)
-                    </td>
-                    <td>
-                        @Html.ActionLink("Редактировать", "Edit", new { id = item.Id }) |
-                        @Html.ActionLink("Удалить", "Delete", new { id = item.Id })
-                    </td>
-                </tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Maker.MakerName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Year.Value)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Count)
+            </td>
+            <td>
+                @Html.ActionLink("Редактировать", "Edit", new { id = item.Id }) |
+                @Html.ActionLink("Удалить", "Delete", new { id = item.Id })
+            </td>
+            <td>
+                @Html.ActionLink("Сгенерировать qr-code", "GenerateBarCode", new { id = item.Id }) 
+         
+            </td>
+        </tr>
             }
         </table>
 

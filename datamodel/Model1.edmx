@@ -49,6 +49,8 @@
           <Property Name="Count" Type="int" />
           <Property Name="Comment" Type="nvarchar" MaxLength="700" />
           <Property Name="Category_id" Type="int" />
+          <Property Name="IsReserved" Type="bit" />
+          <Property Name="GUID" Type="varchar" MaxLength="100" />
         </EntityType>
         <EntityType Name="Categories">
           <Key>
@@ -443,6 +445,8 @@
           <NavigationProperty Name="Author" Relationship="Model.FK_Books_Authors" FromRole="Book" ToRole="Author" />
           <NavigationProperty Name="Category" Relationship="Model.FK_Books_Categories" FromRole="Book" ToRole="Category" />
           <NavigationProperty Name="Maker" Relationship="Model.FK_Books_Makers" FromRole="Book" ToRole="Maker" />
+          <Property Name="IsReserved" Type="Boolean" />
+          <Property Name="GUID" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
         </EntityType>
         <Association Name="FK_Books_Authors">
           <End Type="Model.Author" Role="Author" Multiplicity="0..1" />
@@ -621,6 +625,8 @@
           <EntitySetMapping Name="Books">
             <EntityTypeMapping TypeName="Model.Book">
               <MappingFragment StoreEntitySet="Books">
+                <ScalarProperty Name="GUID" ColumnName="GUID" />
+                <ScalarProperty Name="IsReserved" ColumnName="IsReserved" />
                 <ScalarProperty Name="Category_id" ColumnName="Category_id" />
                 <ScalarProperty Name="Comment" ColumnName="Comment" />
                 <ScalarProperty Name="Count" ColumnName="Count" />

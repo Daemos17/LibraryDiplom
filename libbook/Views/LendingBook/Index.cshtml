@@ -6,12 +6,13 @@
 }
 <div class="form-group">
     <label for="fioStudent">ФИО Студента</label>
-    <input type="text" class="form-control" id="fioStudent" aria-describedby="fiostudentHelp" placeholder="Введите фио студента">
+    <input type="text" class="form-control" id="fioStudent" name="fio" aria-describedby="fiostudentHelp" placeholder="Введите фио студента">
     <small id="fiostudentHelp" class="form-text text-muted">Начните вводить фамилию студента. Через пробел можно указать Имя и Отчество</small>
 </div>
 <table class="table table-hover" id="studentTable">
     <thead>
         <tr>
+            
             <th scope="col" hidden></th>
             <th scope="col">№</th>
             <th scope="col">Фамилия</th>
@@ -23,6 +24,12 @@
     <tbody>
     </tbody>
 </table>
+
+
+
+
+
+
 <div class="form-group">
     <label for="bookName">Название книги</label>
     <input type="text" class="form-control" id="bookName" aria-describedby="bookHelp" placeholder="Введите название книги">
@@ -108,6 +115,7 @@
                 $('#studentTable > tbody > tr:last').click();
             }
         }
+      
         //заполнение таблицы книг
         function createTableBook(data) {
             var tableRows = $('#bookTable').find('tr');
