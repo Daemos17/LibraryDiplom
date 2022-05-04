@@ -85,7 +85,7 @@
 
     <script lang="JavaScript">
 
-
+        let base64String = "";
         var today = new Date();
         var dd = String(today.getDate()).padStart(2, '0');
         var mm = String(today.getMonth() + 1).padStart(2, '0'); 
@@ -99,6 +99,7 @@
         var name = today + '.jpg';
 
         function take_snapshot() {
+           
             // take snapshot and get image data
             Webcam.snap(function (data_uri) {
                 // display results in page
@@ -106,14 +107,35 @@
                     '<img id="imageprev" src="' +
                     data_uri +
                     '"/>';
-              
-                downloadImage(today, data_uri);
-                submitForm(name);
 
-            });
+                base64String = data_uri.replace("data:", "")
+                    .replace(/^.+,/, "");
 
-  
+                   data_uri = base64String;
+                    // downloadImage(today, data_uri);
+                    submitForm(data_uri);
+
+                });
+
+        
         }
+        function imageUploaded(data_uri) {
+            let base64String = "";
+            var reader = new FileReader();
+            console.log("next");
+
+            reader.onload = function () {
+                base64String = data_uri.replace("data:", "")
+                    .replace(/^.+,/, "");
+
+                data_uri = base64String;
+
+                // alert(imageBase64Stringsep);
+                console.log(base64String);
+            }
+         
+        }
+
 
          function submitForm(data_uri) {
 

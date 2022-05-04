@@ -52,10 +52,14 @@ namespace libbook.Controllers
         [HttpPost]
         public ActionResult Capture(string filePath)
         {
-            Bitmap image ;
+            Bitmap image;
             Result result;
-            string imagePath = "C:/users/daniil/downloads/" + filePath;
-            image = (Bitmap)Bitmap.FromFile("storage/emulated/0/Download" + filePath);
+
+
+            // string imagePath = "C:/users/daniil/downloads/" + filePath;
+            // image = (Bitmap)Bitmap.FromFile("storage/emulated/0/Download" + filePath);
+
+            image = Base64StringToBitmap(filePath);
             GaussianBlur blur = new GaussianBlur(image);
             image = blur.Process(2);
             var options = new DecodingOptions { PossibleFormats = new List<BarcodeFormat> { BarcodeFormat.QR_CODE }, TryHarder = true };
@@ -86,8 +90,30 @@ namespace libbook.Controllers
             //return RedirectToAction("Index", new { result =result});
            
         }
-      
-        
+
+
+
+        private Bitmap Base64StringToBitmap(string base64String)
+        {
+            
+
+            Bitmap bmpReturn = null;
+
+            byte[] buffer = Convert.FromBase64String(base64String);
+            MemoryStream memoryStream = new MemoryStream(buffer);
+
+            memoryStream.Position = 0;
+
+            bmpReturn = (Bitmap)Bitmap.FromStream(memoryStream);
+
+            memoryStream.Close();
+            memoryStream = null;
+            buffer = null;
+
+            return bmpReturn;
+        }
+
+
         private void StoreInFolder(IFormFile file, string fileName)
         {
             using (FileStream fs = System.IO.File.Create(fileName))
