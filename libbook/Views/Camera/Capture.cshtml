@@ -2,178 +2,410 @@
     Layout = null;
 }
 
+
+
+
+
+
+
+
+
+
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>WebcamJS Test Page</title>
-    <link href="~/Content/bootstrap.css" rel="stylesheet" />
-    <style type="text/css">
+ 
+        <meta name="viewport" content="width=device-width" />
+       
+        <link href="~/Content/Site.css" type="text/css" />
+        @Styles.Render("~/Content/css")
+        @Scripts.Render("~/bundles/modernizr")
 
-        body {
-            font-family: Helvetica, sans-serif;
-        }
-
-        h2, h3 {
-            margin-top: 0;
-        }
-
-        form {
-            margin-top: 15px;
-        }
-
-            form > input {
-                margin-right: 15px;
+        @Scripts.Render("~/bundles/jquery")
+        @Scripts.Render("~/bundles/bootstrap")
+        <style>
+            .centerForm {
+                margin-top: 0 auto;
+                display: flex;
+                align-items: center;
+                justify-content: center;
             }
-
-
-        #buttonhide {
-            background: transparent;
-            border: none !important;
-            font-size: 0;
+        </style>
+    
+    <style>
+        .d-none {
+            display: none;
+        }
+       canvas {
+            height: 100vh;
+            width: 100vw;
+           display: block;
+        }
+        video {
+            position: fixed;
+            right: 0;
+            bottom: 0;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            z-index: -100;
+            background: no-repeat;
+            background-size: cover;
+        }
+         .buttons {
+            position: absolute;
+            bottom: 0;
+            z-index: 1;
+            width: 100%;
+            text-align: center;
         }
     </style>
-
 </head>
-<body class="container">
+<body>
+    <button type="button" id="btnActivateCamera">Открыть камеру</button>
+
     <br />
-    <div class="col-md-2"></div>
-    <div class="col-md-4">
-        <div class="panel panel-default">
-            <div class="panel-heading">Camera</div>
-            <div class="panel-body">
-                <div id="my_camera"></div>
+    <div class="video">
+    <div class="centerForm">
+       
+            <video id="capturevideo" class="d-none"></video>
+            <canvas id="capturecanvas"  class="d-none"></canvas>
+            <div class="buttons">
+                <div class="centerForm">
+                    <button type="button" id="btnCapture" class="btn btn-primary btn-lg btn-block">Сканировать</button>
+                </div>
+         
 
-                <form>
-                    <input type="button" class="btn btn-success" value="Take Snapshots" onClick="take_snapshot()">
-                  
-                </form>
 
-            </div>
         </div>
+
+        <br />
+
+
+
+      
     </div>
-    <div class="col-md-4">
-        <div class="panel panel-default">
-            <div class="panel-heading">Captured Photo</div>
-            <div class="panel-body">
-                <div id="results">Your captured image will appear here...</div>
-            </div>
-            <br />
-            <br />
-        </div>
-    </div>
+  </div>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script>
+        var videoCapture;
+        var data_uri;
+$(document).ready(function () {
+    videoCapture = document.getElementById('capturevideo');
 
-    <div class="col-md-2">    </div>
-
-    <script src="~/Scripts/webcamjs/webcam.js"></script>
-    <script src="~/Scripts/jquery-3.4.1.min.js"></script>
-    <script language="JavaScript">
-        Webcam.set({
-            
-            width: 320,
-            height: 240,
-            image_format: 'jpeg',
-            jpeg_quality: 90,
-         facingMode: { exact: 'environment' }
-        });
-        Webcam.set('constraints', {
-            facingMode: "environment"
-        });
-        Webcam.attach('#my_camera');
-    </script>
+});
 
 
-    <script lang="JavaScript">
-
-        let base64String = "";
-        var today = new Date();
-        var dd = String(today.getDate()).padStart(2, '0');
-        var mm = String(today.getMonth() + 1).padStart(2, '0'); 
-        var yyyy = today.getFullYear();
-        var hr = today.getHours();
-        var min = today.getMinutes();
-        var sec = today.getSeconds();
-
-        today = mm + '_' + dd + '_' + yyyy + '_' + hr + '_' + min+'_'+sec;
-
-        var name = today + '.jpg';
-
-        function take_snapshot() {
+$(document).on('click', '#btnActivateCamera', function () {
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        // access video stream from webcam
+        navigator.mediaDevices.getUserMedia({ video: { facingMode:"environment" } }).then(function (stream) {
+            // on success, stream it in video tag
            
-            // take snapshot and get image data
-            Webcam.snap(function (data_uri) {
-                // display results in page
-                document.getElementById('results').innerHTML =
-                    '<img id="imageprev" src="' +
-                    data_uri +
-                    '"/>';
-
-                base64String = data_uri.replace("data:", "")
-                    .replace(/^.+,/, "");
-
-                   data_uri = base64String;
-                    // downloadImage(today, data_uri);
-                    submitForm(data_uri);
-
-                });
-
-        
+            window.localStream = stream;
+            videoCapture.srcObject = stream;
+            videoCapture.play();
+            activateCamera();
+        }).catch(e => {
+            // on failure/error, alert message.
+            alert("Please Allow: Use Your Camera!");
+        });
+    }
+});
+$(document).on('click', '#btnDeactivateCamera', function () {
+    // stop video streaming if any
+    localStream.getTracks().forEach(function (track) {
+        if (track.readyState == 'live' && track.kind === 'video') {
+            track.stop();
+            deactivateCamera();
         }
-        function imageUploaded(data_uri) {
-            let base64String = "";
-            var reader = new FileReader();
-            console.log("next");
+    });
+});
 
-            reader.onload = function () {
-                base64String = data_uri.replace("data:", "")
-                    .replace(/^.+,/, "");
+            $(document).on('click', '#btnCapture', function () {
 
+
+                cap();
+    //            videoCapture = document.getElementById('capturevideo');
+               
+    //            var myCanvas = document.getElementById('capturecanvas');
+
+    //            myCanvas.height = videoCapture.height;
+    //            myCanvas.width = videoCapture.width;
+    //            myCanvas.getContext('2d').drawImage(videoCapture, 0, 0, videoCapture.width, videoCapture.height);
+
+
+
+    //       // data_uri = myCanvas.get(0).toDataURL("image/jpeg");
+    //            data_uri = myCanvas.toDataURL("image/jpeg");
+    //base64String = data_uri.replace("data:", "")
+    //  .replace(/^.+,/, "");
+    //data_uri = base64String;
+    //// downloadImage(today, data_uri);
+    //submitForm(data_uri);
+});
+function activateCamera() {
+    $("#btnActivateCamera").addClass("d-none");
+    $("#btnDeactivateCamera").removeClass("d-none");
+    $("#capturevideo").removeClass("d-none");
+    $("#btnCapture").removeClass("d-none");
+    $("#capturecanvas").removeClass("d-none");
+}
+function deactivateCamera() {
+    $("#btnDeactivateCamera").addClass("d-none");
+    $("#btnActivateCamera").removeClass("d-none");
+    $("#capturevideo").addClass("d-none");
+    $("#btnCapture").addClass("d-none");
+    $("#capturecanvas").addClass("d-none");
+}
+            function cap() {
+                var canvas = document.getElementById('capturecanvas');
+                var video = document.getElementById('capturevideo');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                canvas.getContext('2d').drawImage(video, 0, 0, video.videoWidth, video.videoHeight); // for drawing the video element on the canvas
+
+                /** Code to merge image **/
+
+                const playImage = new Image();
+               
+                playImage.onload = () => {
+                    const startX = (video.videoWidth / 2) - (playImage.width / 2);
+                    const startY = (video.videoHeight / 2) - (playImage.height / 2);
+                    canvas.getContext('2d').drawImage(playImage, startX, startY, playImage.width, playImage.height);
+                    //data_uri = myCanvas.get(0).toDataURL("image/jpeg");
+                    
+ 
+                    //canvas.toBlob() = (blob) => { // Canvas element gives a callback to listen to the event after blob is prepared from canvas
+                    //    const img = new Image();
+                    //    img.src = window.URL.createObjectUrl(blob); // window object with static function of URL class that can be used to get URL from blob
+                    //};
+                };
+                data_uri = canvas.toDataURL("image/jpeg");
+                base64String = data_uri.replace("data:", "").replace(/^.+,/, "");
                 data_uri = base64String;
 
-                // alert(imageBase64Stringsep);
-                console.log(base64String);
+
+                submitForm(data_uri);
+                
             }
-         
+
+
+function submitForm(data_uri) {
+
+    var model = data_uri;
+
+
+
+    jQuery.ajax({
+        type: "POST",
+        url: "@Url.Action("Capture","Camera")",
+        dataType: "json",
+        contentType: "application/json; charset=utf-8",
+        data: JSON.stringify({ filePath: model }),
+        success: function (response) {
+            if (response) {
+                window.location.href = response.redirectToUrl;
+            }
+        },
+        failure: function (response) {
+            alert(errMsg);
         }
+    });
 
-
-         function submitForm(data_uri) {
-
-             var model = data_uri;
-
-
-
-            jQuery.ajax({
-                type: "POST",
-                url: "@Url.Action("Capture","Camera")",
-                dataType: "json",
-                contentType: "application/json; charset=utf-8",
-                data: JSON.stringify({ filePath: model }),
-                success: function (response) {
-                    if (response) {              
-                        window.location.href = response.redirectToUrl;
-                    }
-                },
-                failure: function (response) {
-                    alert(errMsg);
-                }
-            });
-
-        }
-        downloadImage = function (name, datauri) {
-            var a = document.createElement('a');
-            a.setAttribute('download', name );
-            a.setAttribute('href', datauri);
-            a.click();
-        }
-    </script>
-    
-   
-
-
-
-
-
-
+}
+downloadImage = function (name, datauri) {
+    var a = document.createElement('a');
+    a.setAttribute('download', name);
+    a.setAttribute('href', datauri);
+    a.click();
+}
+        </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@*<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <title>WebcamJS Test Page</title>
+        <link href="~/Content/bootstrap.css" rel="stylesheet" />
+        <style type="text/css">
+
+            body {
+                font-family: Helvetica, sans-serif;
+            }
+
+            h2, h3 {
+                margin-top: 0;
+            }
+
+            form {
+                margin-top: 15px;
+            }
+
+                form > input {
+                    margin-right: 15px;
+                }
+
+
+            #buttonhide {
+                background: transparent;
+                border: none !important;
+                font-size: 0;
+            }
+        </style>
+
+    </head>
+    <body class="container">
+        <br />
+        <div class="col-md-2"></div>
+        <div class="col-md-4">
+            <div class="panel panel-default">
+                <div class="panel-heading">Camera</div>
+                <div class="panel-body">
+                    <div id="my_camera"></div>
+
+                    <form>
+                        <input type="button" class="btn btn-success" value="Take Snapshots" onClick="take_snapshot()">
+
+                    </form>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="panel panel-default">
+                <div class="panel-heading">Captured Photo</div>
+                <div class="panel-body">
+                    <div id="results">Your captured image will appear here...</div>
+                </div>
+                <br />
+                <br />
+            </div>
+        </div>
+
+        <div class="col-md-2">    </div>
+
+        <script src="~/Scripts/webcamjs/webcam.js"></script>
+        <script src="~/Scripts/jquery-3.4.1.min.js"></script>
+        <script language="JavaScript">
+            Webcam.set({
+
+                width: 1000,
+                height: 1000,
+                image_format: 'jpeg',
+                jpeg_quality: 90,
+             facingMode: { exact: 'environment' }
+            });
+            //Webcam.set('constraints', {
+            //    facingMode: "environment"
+            //});
+            Webcam.attach('#my_camera');
+        </script>
+
+
+        <script lang="JavaScript">
+
+            let base64String = "";
+
+
+            function take_snapshot() {
+
+                // take snapshot and get image data
+                Webcam.snap(function (data_uri) {
+                    // display results in page
+                    document.getElementById('results').innerHTML =
+                        '<img id="imageprev" src="' +
+                        data_uri +
+                        '"/>';
+
+                    base64String = data_uri.replace("data:", "")
+                        .replace(/^.+,/, "");
+
+                       data_uri = base64String;
+                        // downloadImage(today, data_uri);
+                        submitForm(data_uri);
+
+                    });
+
+
+            }
+            function imageUploaded(data_uri) {
+                let base64String = "";
+                var reader = new FileReader();
+                console.log("next");
+
+                reader.onload = function () {
+                    base64String = data_uri.replace("data:", "")
+                        .replace(/^.+,/, "");
+
+                    data_uri = base64String;
+
+                    // alert(imageBase64Stringsep);
+                    console.log(base64String);
+                }
+
+            }
+
+
+             function submitForm(data_uri) {
+
+                 var model = data_uri;
+
+
+
+                jQuery.ajax({
+                    type: "POST",
+                    url: "@Url.Action("Capture","Camera")",
+                    dataType: "json",
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify({ filePath: model }),
+                    success: function (response) {
+                        if (response) {
+                            window.location.href = response.redirectToUrl;
+                        }
+                    },
+                    failure: function (response) {
+                        alert(errMsg);
+                    }
+                });
+
+            }
+            downloadImage = function (name, datauri) {
+                var a = document.createElement('a');
+                a.setAttribute('download', name );
+                a.setAttribute('href', datauri);
+                a.click();
+            }
+        </script>
+
+
+
+
+
+
+
+
+    </body>
+    </html>*@

@@ -1,14 +1,62 @@
-﻿@model libbook.ViewModels.BarCodeViewModel
+﻿@model  IList<libbook.ViewModels.BarCodeViewModel>
  @{
     ViewBag.Title = "GenerateQrCode";
 }
 
-<h2>Сгенерированный Qr - код</h2>
-@{
-    if (Model != null)
-    {
+
+<html>
+
+<head>
+    <link rel="stylesheet" href="~/Content/print.css">
+</head>
+
+<body>
+
+    <h2>Сгенерированные Qr - коды</h2>
+    @*@{
+            if (Model != null)
+            {
+
+              
+            }
+        }*@
+
+<button target="blank" class="btn btn-primary" style="cursor: pointer" onclick="window.print();">Печать</button>
+<table class="table">
+    <tr>
+        <th> </th>
+        <th></th> 
+        <th> </th>
         
-        <img src="@String.Format("data:image/png;base64,{0}", Convert.ToBase64String(Model.QrCodeImage))" width="250" height="250" />
+
+    </tr>
+
+
+       @for (int i = 0; i < Model.Count; i++)
+       {
+<tr>
+    @for (int j = 0;  j < 3; j++)
+    {
+    <td>
+        @Model[i].Book.BookName<br />
+        <img src="@String.Format("data:image/png;base64,{0}", Convert.ToBase64String(Model[i].QrCodeImage))" width="100" height="100" />
+        <br />
+        @Model[i].Book.InventoryNum
+    </td>
+
+
     }
-}
+</tr>   
+       }
+
+
+
+
+    </table>
+    
+
+
+
+</body>
+</html>
 

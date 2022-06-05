@@ -8,7 +8,7 @@ using datamodel;
 
 namespace libbook.Controllers
 {
-    
+
     public class TeacherController : Controller
     {
         Services.Teacher m_teacher = new Services.Teacher();

@@ -18,6 +18,15 @@ using System;
 public partial class Book
 {
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+    public Book()
+    {
+
+        this.ReaderBooks = new HashSet<ReaderBook>();
+
+    }
+
+
     public int Id { get; set; }
 
     public Nullable<int> Author_id { get; set; }
@@ -28,8 +37,6 @@ public partial class Book
 
     public Nullable<System.DateTime> Year { get; set; }
 
-    public Nullable<int> Count { get; set; }
-
     public string Comment { get; set; }
 
     public Nullable<int> Category_id { get; set; }
@@ -38,6 +45,8 @@ public partial class Book
 
     public string GUID { get; set; }
 
+    public string InventoryNum { get; set; }
+
 
 
     public virtual Author Author { get; set; }
@@ -45,6 +54,10 @@ public partial class Book
     public virtual Category Category { get; set; }
 
     public virtual Maker Maker { get; set; }
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+
+    public virtual ICollection<ReaderBook> ReaderBooks { get; set; }
 
 }
 

@@ -46,7 +46,7 @@
           <Property Name="Maker_id" Type="int" />
           <Property Name="BookName" Type="nvarchar" MaxLength="300" />
           <Property Name="Year" Type="date" />
-          <Property Name="Count" Type="int" />
+          <Property Name="InventoryNum" Type="varchar" MaxLength="100" />
           <Property Name="Comment" Type="nvarchar" MaxLength="700" />
           <Property Name="Category_id" Type="int" />
           <Property Name="IsReserved" Type="bit" />
@@ -73,6 +73,17 @@
           </Key>
           <Property Name="Id_maker" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="MakerName" Type="varchar" MaxLength="100" />
+        </EntityType>
+        <EntityType Name="ReaderBooks">
+          <Key>
+            <PropertyRef Name="IdRead" />
+          </Key>
+          <Property Name="IdRead" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="BookId" Type="int" />
+          <Property Name="ReaderId" Type="int" />
+          <Property Name="DateOfTaking" Type="date" />
+          <Property Name="DateOfReturning" Type="date" />
+          <Property Name="CounOfBooks" Type="int" StoreGeneratedPattern="Identity" />
         </EntityType>
         <EntityType Name="Students">
           <Key>
@@ -183,6 +194,30 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_ReaderBooks_Books">
+          <End Role="Books" Type="Self.Books" Multiplicity="0..1" />
+          <End Role="ReaderBooks" Type="Self.ReaderBooks" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Books">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ReaderBooks">
+              <PropertyRef Name="BookId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ReaderBooks_Students">
+          <End Role="Students" Type="Self.Students" Multiplicity="0..1" />
+          <End Role="ReaderBooks" Type="Self.ReaderBooks" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Students">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ReaderBooks">
+              <PropertyRef Name="ReaderId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Function Name="DeleteAccount" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="Id" Type="int" Mode="In" />
         </Function>
@@ -209,6 +244,7 @@
           <EntitySet Name="Categories" EntityType="Self.Categories" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Groups" EntityType="Self.Groups" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Makers" EntityType="Self.Makers" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ReaderBooks" EntityType="Self.ReaderBooks" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Students" EntityType="Self.Students" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Teachers" EntityType="Self.Teachers" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Users" EntityType="Self.Users" Schema="dbo" store:Type="Tables" />
@@ -255,6 +291,14 @@
           <AssociationSet Name="FK_Books_Makers" Association="Self.FK_Books_Makers">
             <End Role="Makers" EntitySet="Makers" />
             <End Role="Books" EntitySet="Books" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ReaderBooks_Books" Association="Self.FK_ReaderBooks_Books">
+            <End Role="Books" EntitySet="Books" />
+            <End Role="ReaderBooks" EntitySet="ReaderBooks" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ReaderBooks_Students" Association="Self.FK_ReaderBooks_Students">
+            <End Role="Students" EntitySet="Students" />
+            <End Role="ReaderBooks" EntitySet="ReaderBooks" />
           </AssociationSet>
         </EntityContainer>
       </Schema></edmx:StorageModels>
@@ -312,6 +356,7 @@
           <Property Name="LastName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
           <Property Name="Group_id" Type="Int32" />
           <Property Name="DateIn" Type="DateTime" Precision="0" />
+          <NavigationProperty Name="ReaderBooks" Relationship="Model.FK_ReaderBooks_Students" FromRole="Student" ToRole="ReaderBook" />
         </EntityType>
         <EntityType Name="Teacher">
           <Key>
@@ -320,6 +365,7 @@
           <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="User_id" Type="Int32" />
           <Property Name="Comment" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="ReaderBooks" Relationship="Model.FK_ReaderBooks_Teachers" FromRole="Teacher" ToRole="ReaderBook" />
         </EntityType>
         <EntityType Name="User">
           <Key>
@@ -402,6 +448,19 @@
             <End Role="Maker" EntitySet="Makers" />
             <End Role="Book" EntitySet="Books" />
           </AssociationSet>
+          <EntitySet Name="ReaderBooks" EntityType="Model.ReaderBook" />
+          <AssociationSet Name="FK_ReaderBooks_Books" Association="Model.FK_ReaderBooks_Books">
+            <End Role="Book" EntitySet="Books" />
+            <End Role="ReaderBook" EntitySet="ReaderBooks" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ReaderBooks_Students" Association="Model.FK_ReaderBooks_Students">
+            <End Role="Student" EntitySet="Students" />
+            <End Role="ReaderBook" EntitySet="ReaderBooks" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ReaderBooks_Teachers" Association="Model.FK_ReaderBooks_Teachers">
+            <End Role="Teacher" EntitySet="Teachers" />
+            <End Role="ReaderBook" EntitySet="ReaderBooks" />
+          </AssociationSet>
         </EntityContainer>
         <EntityType Name="Maker">
           <Key>
@@ -439,7 +498,6 @@
           <Property Name="Maker_id" Type="Int32" />
           <Property Name="BookName" Type="String" MaxLength="300" FixedLength="false" Unicode="true" />
           <Property Name="Year" Type="DateTime" Precision="0" />
-          <Property Name="Count" Type="Int32" />
           <Property Name="Comment" Type="String" MaxLength="700" FixedLength="false" Unicode="true" />
           <Property Name="Category_id" Type="Int32" />
           <NavigationProperty Name="Author" Relationship="Model.FK_Books_Authors" FromRole="Book" ToRole="Author" />
@@ -447,6 +505,8 @@
           <NavigationProperty Name="Maker" Relationship="Model.FK_Books_Makers" FromRole="Book" ToRole="Maker" />
           <Property Name="IsReserved" Type="Boolean" />
           <Property Name="GUID" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="ReaderBooks" Relationship="Model.FK_ReaderBooks_Books" FromRole="Book" ToRole="ReaderBook" />
+          <Property Name="InventoryNum" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
         </EntityType>
         <Association Name="FK_Books_Authors">
           <End Type="Model.Author" Role="Author" Multiplicity="0..1" />
@@ -481,6 +541,55 @@
             </Principal>
             <Dependent Role="Book">
               <PropertyRef Name="Maker_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="ReaderBook">
+          <Key>
+            <PropertyRef Name="IdRead" />
+          </Key>
+          <Property Name="IdRead" Type="Int32" Nullable="false" />
+          <Property Name="BookId" Type="Int32" />
+          <Property Name="ReaderId" Type="Int32" />
+          <Property Name="DateOfTaking" Type="DateTime" Precision="0" />
+          <Property Name="DateOfReturning" Type="DateTime" Precision="0" />
+          <Property Name="CounOfBooks" Type="Int32" annotation:StoreGeneratedPattern="Identity" />
+          <NavigationProperty Name="Book" Relationship="Model.FK_ReaderBooks_Books" FromRole="ReaderBook" ToRole="Book" />
+          <NavigationProperty Name="Student" Relationship="Model.FK_ReaderBooks_Students" FromRole="ReaderBook" ToRole="Student" />
+        </EntityType>
+        <Association Name="FK_ReaderBooks_Books">
+          <End Type="Model.Book" Role="Book" Multiplicity="0..1" />
+          <End Type="Model.ReaderBook" Role="ReaderBook" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Book">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ReaderBook">
+              <PropertyRef Name="BookId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ReaderBooks_Students">
+          <End Type="Model.Student" Role="Student" Multiplicity="0..1" />
+          <End Type="Model.ReaderBook" Role="ReaderBook" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Student">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ReaderBook">
+              <PropertyRef Name="ReaderId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ReaderBooks_Teachers">
+          <End Type="Model.Teacher" Role="Teacher" Multiplicity="0..1" />
+          <End Type="Model.ReaderBook" Role="ReaderBook" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Teacher">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="ReaderBook">
+              <PropertyRef Name="ReaderId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -625,16 +734,28 @@
           <EntitySetMapping Name="Books">
             <EntityTypeMapping TypeName="Model.Book">
               <MappingFragment StoreEntitySet="Books">
+                <ScalarProperty Name="InventoryNum" ColumnName="InventoryNum" />
                 <ScalarProperty Name="GUID" ColumnName="GUID" />
                 <ScalarProperty Name="IsReserved" ColumnName="IsReserved" />
                 <ScalarProperty Name="Category_id" ColumnName="Category_id" />
                 <ScalarProperty Name="Comment" ColumnName="Comment" />
-                <ScalarProperty Name="Count" ColumnName="Count" />
                 <ScalarProperty Name="Year" ColumnName="Year" />
                 <ScalarProperty Name="BookName" ColumnName="BookName" />
                 <ScalarProperty Name="Maker_id" ColumnName="Maker_id" />
                 <ScalarProperty Name="Author_id" ColumnName="Author_id" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ReaderBooks">
+            <EntityTypeMapping TypeName="Model.ReaderBook">
+              <MappingFragment StoreEntitySet="ReaderBooks">
+                <ScalarProperty Name="CounOfBooks" ColumnName="CounOfBooks" />
+                <ScalarProperty Name="DateOfReturning" ColumnName="DateOfReturning" />
+                <ScalarProperty Name="DateOfTaking" ColumnName="DateOfTaking" />
+                <ScalarProperty Name="ReaderId" ColumnName="ReaderId" />
+                <ScalarProperty Name="BookId" ColumnName="BookId" />
+                <ScalarProperty Name="IdRead" ColumnName="IdRead" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

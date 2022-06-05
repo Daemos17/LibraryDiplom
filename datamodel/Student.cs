@@ -18,6 +18,15 @@ using System;
 public partial class Student
 {
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+    public Student()
+    {
+
+        this.ReaderBooks = new HashSet<ReaderBook>();
+
+    }
+
+
     public int Id { get; set; }
 
     public string FirstName { get; set; }
@@ -29,6 +38,12 @@ public partial class Student
     public Nullable<int> Group_id { get; set; }
 
     public Nullable<System.DateTime> DateIn { get; set; }
+
+
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+
+    public virtual ICollection<ReaderBook> ReaderBooks { get; set; }
 
 }
 

@@ -15,29 +15,26 @@ namespace datamodel
 using System;
     using System.Collections.Generic;
     
-public partial class Teacher
+public partial class ReaderBook
 {
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-    public Teacher()
-    {
+    public int IdRead { get; set; }
 
-        this.ReaderBooks = new HashSet<ReaderBook>();
+    public Nullable<int> BookId { get; set; }
 
-    }
+    public Nullable<int> ReaderId { get; set; }
 
+    public Nullable<System.DateTime> DateOfTaking { get; set; }
 
-    public int Id { get; set; }
+    public Nullable<System.DateTime> DateOfReturning { get; set; }
 
-    public Nullable<int> User_id { get; set; }
-
-    public string Comment { get; set; }
+    public Nullable<int> CounOfBooks { get; set; }
 
 
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+    public virtual Book Book { get; set; }
 
-    public virtual ICollection<ReaderBook> ReaderBooks { get; set; }
+    public virtual Student Student { get; set; }
 
 }
 

@@ -23,26 +23,53 @@
             align-items: center;
             justify-content: center;
         }
+        .btn-color {
+            background-color: #0e1c36;
+            color: #fff;
+        }
+
+        .profile-image-pic {
+            height: 200px;
+            width: 200px;
+            object-fit: cover;
+        }
+
+
+
+        .cardbody-color {
+            background-color: #7bafea;
+        }
+
+        a {
+            text-decoration: none;
+        }
     </style>
 </head>
 <body>
+   
+
+
+
+
     <div class="centerForm">
+
         @using (Html.BeginForm())
         {
 
-            @Html.AntiForgeryToken();
-            <input type="hidden" name="returnUrl" value="@ViewBag.returnUrl" />
-            <div class="form-group">
-                <label>Логин</label>
-                @Html.TextBoxFor(x => x.Login, new { @class = "form-control" })
-            </div>
-            <div class="form-group">
-                <label>Пароль</label>
-                @Html.PasswordFor(x => x.Password, new { @class = "form-control" })
-            </div>
-            <button class="btn btn-primary" type="submit">Войти</button>
-
-        }
+    @Html.AntiForgeryToken();
+    <input type="hidden" name="returnUrl" value="@ViewBag.returnUrl" />
+                    <div class="form-group">
+                        <label>Логин</label>
+                        @Html.TextBoxFor(x => x.Login, new { @class = "form-control" })
+                    </div>
+                                    <div class="form-group">
+                                        <label>Пароль</label>
+                                        @Html.PasswordFor(x => x.Password, new { @class = "form-control" })
+                                    </div>
+                                                    <button class="btn btn-primary" type="submit">Войти</button>
+                                                    
+                                                    
+                                                    }
     </div>
 </body>
 </html>

@@ -1,7 +1,10 @@
-﻿@using datamodel
+﻿@model datamodel.ReaderBook
+@{
+    ViewBag.Title = "LendBook";
+}
 
-@model IEnumerable<vStudent>
-@{ ViewBag.Title = "Home Page"; }
+<h2>Выдача книги</h2>
+
 <div class="form-group">
     <label for="fioStudent">ФИО Студента</label>
     <input type="text" class="form-control" id="fioStudent" name="fio" aria-describedby="fiostudentHelp" placeholder="Введите фио студента">
@@ -24,11 +27,33 @@
     </tbody>
 </table>
 
-
-@if (Request.Browser.IsMobileDevice)
+@*@if (Request.Browser.IsMobileDevice)
+    {*@
+@*<button class="btn btn-primary" onclick="window.location.href='@Url.Action("Capture", "Camera")'">Сканировать QR - код</button>*@
+@if (Model.Book != null)
 {
-<button class="btn btn-primary" onclick="window.location.href='@Url.Action("Capture", "Camera")'">Сканировать QR - код</button>
+    using (Html.BeginForm())
+    {
+
+        @Html.HiddenFor(m => m.Book.Id)
+        @Html.HiddenFor(m => m.ReaderId)
+        <form asp-action="LendBook" asp-controller="LendingBook" method="post">
+            <h4>@Model.Book.BookName</h4>
+            <p>@String.Format("{0:yyyy}", Model.Book.Year.Value)</p>
+
+
+            <label>Кол - во</label>
+            @Html.EditorFor(m => m.CounOfBooks)
+
+            <br />
+            <p>
+                <input class="btn btn-primary" type="submit" value="Выдать" />
+            </p>
+        </form>
+    }
 }
+
+@*}*@
 
 
 
@@ -53,9 +78,26 @@
     </tbody>
 </table>
 
+@section Scripts
+{
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script>
+        $(function () {
+            $("#datepicker").datepicker();
+        });
+    </script>
+}
 
+@if (TempData["message"] != null)
+{
+    <script type="text/javascript">
 
+                    alert(@Html.Raw(Json.Encode(TempData["message"])));
+    </script>
 
+}
 
 
 <script type="text/javascript">
@@ -63,13 +105,13 @@
     $(document).ready(function () {
         //выбор из таблицы студентов
         $('#studentTable').on('click', 'tbody tr', function (event) {
-          
-          
-                window.location.href = "@Url.Action("LendStudent", "LendingBook")?studentId=" + $(this).attr('id');
+
+
+                //window.location.href = "@Url.Action("LendBook", "LendingBook")?studentId=" + $(this).attr('id');
 
                 $('#studentTable tr').removeClass('active');
                 $(this).addClass('active');
-            
+
         });
         //выбор строки из таблицы книг
         $('#bookTable').on('click', 'tbody tr', function (event) {

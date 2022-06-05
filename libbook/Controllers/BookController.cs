@@ -4,20 +4,23 @@ using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
-using Wangkanai.Detection;
+
 using libbook.ViewModels;
+using Microsoft.EntityFrameworkCore;
 
 namespace libbook.Controllers
 {
+ 
     public class BookController : Controller
     {
+     
         Services.Book bookServ = new Services.Book();
-       
 
-
+   
         // GET: Book
         public ActionResult Index(string searchString)
         {
+           
             var books = new Services.Book().GetAllBooks();
             if (!String.IsNullOrEmpty(searchString))
             {
@@ -26,37 +29,63 @@ namespace libbook.Controllers
             return View(books);
         }
 
-        public ActionResult GenerateBarCode(int id)
+        public ActionResult GenerateBarCode()
         {
             Byte[] byteArray;
 
-            var pixelData = bookServ.GenerateCode(id);
+            var list = new List<BarCodeViewModel>();
 
-            using (var bitmap= new System.Drawing.Bitmap(pixelData.Width, pixelData.Height, System.Drawing.Imaging.PixelFormat.Format32bppRgb))
+            var books = bookServ.GetAllBooks();
+
+            foreach (var b in books)
             {
-                using (var ms=new MemoryStream())
+                if (b.GUID != null)
                 {
-                    var bitmapData = bitmap.LockBits(new System.Drawing.Rectangle(0, 0, pixelData.Width, pixelData.Height), System.Drawing.Imaging.ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
-                    try
+                    var model = new BarCodeViewModel();
+
+                    var pixelData = bookServ.GenerateCode(b.Id);
+                    using (var bitmap = new System.Drawing.Bitmap(pixelData.Width, pixelData.Height, System.Drawing.Imaging.PixelFormat.Format32bppRgb))
                     {
-                        // we assume that the row stride of the bitmap is aligned to 4 byte multiplied by the width of the image   
-                        System.Runtime.InteropServices.Marshal.Copy(pixelData.Pixels, 0, bitmapData.Scan0, pixelData.Pixels.Length);
+                        using (var ms = new MemoryStream())
+                        {
+                            var bitmapData = bitmap.LockBits(new System.Drawing.Rectangle(0, 0, pixelData.Width, pixelData.Height), System.Drawing.Imaging.ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
+                            try
+                            {
+                                // we assume that the row stride of the bitmap is aligned to 4 byte multiplied by the width of the image   
+                                System.Runtime.InteropServices.Marshal.Copy(pixelData.Pixels, 0, bitmapData.Scan0, pixelData.Pixels.Length);
+                            }
+                            finally
+                            {
+                                bitmap.UnlockBits(bitmapData);
+                            }
+                            // save to stream as PNG   
+                            bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                            byteArray = ms.ToArray();
+                        }
                     }
-                    finally
-                    {
-                        bitmap.UnlockBits(bitmapData);
-                    }
-                    // save to stream as PNG   
-                    bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-                    byteArray = ms.ToArray();
+
+                    model.Book = b;
+                    model.QrCodeImage = byteArray;
+
+                    list.Add(model);
                 }
             }
-          
-                return View(new BarCodeViewModel 
-                {                 
-                    QrCodeImage=byteArray
-                });
+
+            return View(list);
         }
+
+
+        public ActionResult GenerateGuid(int id)
+        {
+            bookServ.AddGuid(id);
+
+            TempData["message"] = "QR - код успешно сгенерирован";
+            return RedirectToAction("Index");
+
+        }
+
+
+
        
 
 
@@ -97,7 +126,7 @@ namespace libbook.Controllers
 
             SelectList author = new SelectList(authors, "Id", "FullName", book.Author_id);
             SelectList maker = new SelectList(makers, "Id_maker", "MakerName", book.Maker_id);
-            SelectList category = new SelectList(categories, "Id_category", "CategoryName", book.Author_id);
+            SelectList category = new SelectList(categories, "Id_category", "CategoryName", book.Category_id);
 
 
             ViewBag.Authors = author;

@@ -23,135 +23,88 @@
             justify-content: center;
         }
     </style>
-    <title>Index</title>
+    <title>Справочник Книг</title>
 </head>
 <body>
 
     <form asp-controller="Book" asp-action="Index">
         <p>
             Название книги: <input type="text" name="searchString" />
-            <input type="submit" value="Filter" />
+            <input type="submit" value="Поиск" />
         </p>
     </form>
+    <br />
+
+    @Html.ActionLink("Печать кодов","GenerateBarCode","Book")
     <div>
+        @if (Model.Any())
+        {
+            <table class="table">
+                <tr>
+                    <th>№</th>
+                    <th>Название</th>
+                    <th>Автор</th>
+                    <th>Издатель</th>
+                    <th>Год издания</th>
+                    <th>Инвертарный номер</th>
+                    <th>Действия</th>
 
-        <table class="table">
-            <tr>
-                <th>№</th>
-                <th>Название</th>
-                <th>Автор</th>
-                <th>Издатель</th>
-                <th>Год издания</th>
-                <th>Кол-во</th>
-                <th>Действия</th>
-
-            </tr>
-            @foreach (var item in Model)
-            {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.BookName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Author.FullName)
-            </td>
+                </tr>
+                @foreach (var item in Model)
+                {
+                    if (item.IsReserved == false)
+                    {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Id)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.BookName)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Author.FullName)
+                        </td>
 
 
-            <td>
-                @Html.DisplayFor(modelItem => item.Maker.MakerName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Year.Value)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Count)
-            </td>
-            <td>
-                @Html.ActionLink("Редактировать", "Edit", new { id = item.Id }) |
-                @Html.ActionLink("Удалить", "Delete", new { id = item.Id })
-            </td>
-            <td>
-                @Html.ActionLink("Сгенерировать qr-code", "GenerateBarCode", new { id = item.Id }) 
-         
-            </td>
-        </tr>
-            }
-        </table>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Maker.MakerName)
+                        </td>
+                        <td>
+                            @String.Format("{0:yyyy}", item.Year.Value)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.InventoryNum)
+                        </td>
+                        <td>
+                            @Html.ActionLink("Редактировать", "Edit", new { id = item.Id }) |
+                            @Html.ActionLink("Удалить", "Delete", new { id = item.Id })
+                        </td>
+                        <td>
+                            @Html.ActionLink("Сгенерировать qr-code", "GenerateGuid", new { id = item.Id })
+
+                        </td>
+                    </tr>
+                    }
+                }
+            </table>
+        }
+        else
+        {
+            <p>Нет данных</p>
+        }
 
         @Html.ActionLink("Добавить +", "Add", "Book")
 
-    </div>
-
-
-
-
-
-    <div class="form-group">
-        <label for="bookName">Название книги</label>
-        <input type="text" class="form-control" id="bookName" aria-describedby="bookHelp" placeholder="Введите название книги">
-        <small id="bookHelp" class="form-text text-muted">Начните название книги или автора книги</small>
-    </div>
-    <table class="table table-hover" id="bookTable">
-        <thead>
-            <tr>
-                <th scope="col">№</th>
-                <th scope="col">Автор</th>
-                <th scope="col">Название</th>
-                <th scope="col">Год выпуска</th>
-                <th scope="col">Количество в наличии</th>
-            </tr>
-        </thead>
-        <tbody>
-        </tbody>
-    </table>
-
-
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+        @if (TempData["message"] != null)
+        {
     <script type="text/javascript">
-        $(document).ready(function () {
 
-            //выбор строки из таблицы книг
-            $('#bookTable').on('click', 'tbody tr', function (event) {
-                console.log($(this).attr('id'));
-                $('#bookTable tr').removeClass('active');
-                $(this).addClass('active');
-            });
-
-            var bookInput = $('#bookName');
-
-            //ввод в поле книги
-            bookInput.keyup(function () {
-                var t = bookInput.val();
-                if (t.length >= 3) {
-                    $.get("/Book/Autocomplete", {
-                        term: t
-                    }, function (data) {
-                        createTableBook(data);
-                    });
-                }
-            });
-
-            //заполнение таблицы книг
-            function createTableBook(data) {
-                var tableRows = $('#bookTable').find('tr');
-                for (var i = 1; i < tableRows.length; i++) {
-                    tableRows[i].remove();
-                }
-                for (i = 0; i < data.books.length; i++) {
-                    $('#bookTable > tbody').append('<tr id=' + data.books[i].Id + '></tr>');
-                    $('#bookTable > tbody > tr:last').append('<td id="bookId" hidden>' + data.books[i].Id + '</td>');
-                    $('#bookTable > tbody > tr:last').append('<td>' + (i + 1) + '</td>');
-                    $('#bookTable > tbody > tr:last').append('<td>' + data.books[i].BookName + '</td>');
-
-                }
-                if (data.books.length == 1) {
-                    $('#bookTable > tbody > tr:last').click();
-                }
-            }
-        });
+                    alert(@Html.Raw(Json.Encode(TempData["message"])));
     </script>
+
+        }
+    </div>
+
+
 </body>
 </html>

@@ -61,6 +61,8 @@ public partial class Entities2 : DbContext
 
     public virtual DbSet<Book> Books { get; set; }
 
+    public virtual DbSet<ReaderBook> ReaderBooks { get; set; }
+
 
     public virtual int EditUser(Nullable<int> id, string firstname, string lastname, string secondname, string login, string email, string phone)
     {
