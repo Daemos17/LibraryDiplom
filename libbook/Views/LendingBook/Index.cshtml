@@ -27,10 +27,16 @@
 
 @if (Request.Browser.IsMobileDevice)
 {
-<button class="btn btn-primary" onclick="window.location.href='@Url.Action("Capture", "Camera")'">Сканировать QR - код</button>
+<button class="btn btn-primary" onclick="window.location.href='@Url.Action("Capture", "Camera")'">Сканировать QR - код</button>}
+
+@if (TempData["message"] != null)
+{
+<script type="text/javascript">
+
+       alert(@Html.Raw(Json.Encode(TempData["message"])));
+</script>
+
 }
-
-
 
 <div class="form-group">
     <label for="bookName">Название книги</label>
@@ -63,13 +69,13 @@
     $(document).ready(function () {
         //выбор из таблицы студентов
         $('#studentTable').on('click', 'tbody tr', function (event) {
-          
-          
+
+
                 window.location.href = "@Url.Action("LendStudent", "LendingBook")?studentId=" + $(this).attr('id');
 
                 $('#studentTable tr').removeClass('active');
                 $(this).addClass('active');
-            
+
         });
         //выбор строки из таблицы книг
         $('#bookTable').on('click', 'tbody tr', function (event) {

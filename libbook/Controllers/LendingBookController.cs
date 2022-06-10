@@ -43,8 +43,8 @@ namespace libbook.Controllers
 
             int studentId = Convert.ToInt32(TempData["stId"]);
 
-            var book = bookServ.GetById(4);
-            var student = db.vStudents.FirstOrDefault(p=>p.Id==2);
+            var book = bookServ.GetById(bookId);
+            var student = db.vStudents.FirstOrDefault(p=>p.Id==studentId);
 
             lend.BookId = book.Id;
             lend.Book = book;
@@ -60,7 +60,7 @@ namespace libbook.Controllers
         {
             var book = db.Books.FirstOrDefault(b=>b.Id==reader.Book.Id);
             var student = db.Students.Find(reader.ReaderId);
-
+            string ms = "";
             var readers = new List<ReaderBook>();
             if (reader.CounOfBooks > 0)
             {
@@ -74,10 +74,11 @@ namespace libbook.Controllers
                         db.Entry(b).State = System.Data.Entity.EntityState.Modified;
                         var r = new ReaderBook() { DateOfTaking = DateTime.Now, Book=b,ReaderId=student.Id,Student=student,BookId=b.Id};
                         readers.Add(r);
-                       
+                        ms += "\n" + b.InventoryNum + " ";
                     }
                     db.ReaderBooks.AddRange(readers);
                     db.SaveChanges();
+                    TempData["message"] = "Выдайте книги с номерами: "+ms;
                     return RedirectToAction("Index");
                 }
                 else
