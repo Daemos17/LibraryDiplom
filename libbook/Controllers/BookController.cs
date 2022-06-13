@@ -4,18 +4,20 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using Wangkanai.Detection;
+using NLog;
 
 namespace libbook.Controllers
 {
     public class BookController : Controller
     {
         Services.Book bookServ = new Services.Book();
-       
 
+        private static Logger logger = LogManager.GetLogger("f");
 
         // GET: Book
         public ActionResult Index(string searchString)
         {
+            logger.Info("Пользователь " + "'" + User.Identity.Name + "'" + " перешел на страницу 'Справочник книг'");
             var books = new Services.Book().GetAllBooks();
             if (!String.IsNullOrEmpty(searchString))
             {
@@ -25,13 +27,13 @@ namespace libbook.Controllers
         }
 
 
-       
+
 
 
         [HttpGet]
         public ActionResult Edit(int id)
         {
-
+            logger.Info("'Справочник книг' Ожидание редактирования книги...");
             var authors = bookServ.GetAllAuthors();
             var makers = bookServ.GetAllMakers();
 
@@ -49,6 +51,8 @@ namespace libbook.Controllers
         [HttpPost]
         public ActionResult Edit(datamodel.Book book)
         {
+            logger.Info("'Справочник книг' Успешное редактирование!");
+
             bookServ.EditBook(book);
             return RedirectToAction("Index");
         }
@@ -57,6 +61,8 @@ namespace libbook.Controllers
         [HttpGet]
         public ActionResult Add()
         {
+            logger.Info("'Справочник книг' Ожидание добавления книги...");
+
             var authors = bookServ.GetAllAuthors();
             var makers = bookServ.GetAllMakers();
             var book = new datamodel.Book();
@@ -78,7 +84,7 @@ namespace libbook.Controllers
         [HttpPost]
         public ActionResult Add(datamodel.Book book)
         {
-
+            logger.Info("'Справочник книг' Успешное добавление!");
             bookServ.CreateBook(book);
 
 
@@ -89,6 +95,8 @@ namespace libbook.Controllers
 
         public ActionResult Delete(int id)
         {
+            logger.Info("'Справочник книг' Ожидание удаления книги...");
+
             if (id != null)
             {
                 datamodel.Book book = bookServ.GetById(id);

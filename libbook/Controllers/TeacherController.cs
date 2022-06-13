@@ -5,15 +5,20 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using datamodel;
+using NLog;
 
 namespace libbook.Controllers
 {
-    
     public class TeacherController : Controller
     {
         Services.Teacher m_teacher = new Services.Teacher();
+
+        private static Logger logger = LogManager.GetLogger("f");
+
         public ActionResult Index()
         {
+            logger.Info("Пользователь " + "'" + User.Identity.Name + "'" + " перешел на страницу 'Справочник преподавателей'");
+
             var teachers = m_teacher.GetAllTeachers();
             return View(teachers);
         }
@@ -30,45 +35,45 @@ namespace libbook.Controllers
 
         public ActionResult Add()
         {
+            logger.Info("'Справочник преподавателей' Ожидание добавления преподавателя...");
+
             return View();
         }
-        
         public ActionResult AddTeacher(datamodel.vTeacher teacher)
         {
-            int id = m_teacher.AddTeacher(teacher); 
+            logger.Info("'Справочник преподавателей' Пользователь " + "'" + User.Identity.Name + "'" + " добавил преподавателя: " + "'" + teacher.FirstName + " " + teacher.SecondName + " " + teacher.LastName + "'" + ". ");
+            int id = m_teacher.AddTeacher(teacher);
             return RedirectToAction("Index");
         }
-
         public ActionResult Delete(int id)
         {
+            logger.Info("'Справочник преподавателей' Ожидание удаления преподавателя...");
             ViewBag.TeacherId = id;
             return View();
         }
-
         public ActionResult Edit(int id)
         {
+            logger.Info("'Справочник преподавателей' Ожидание редактирования преподавателя...");
             var teacher = m_teacher.GetTeacherById(id);
             return View(teacher);
         }
-
         public ActionResult EditTeacher(vTeacher teacher)
         {
+            logger.Info("'Справочник преподавателей' Пользователь " + "'" + User.Identity.Name + "'" + " редактировал преподавателя: " + "'" + teacher.FirstName + " " + teacher.SecondName + " " + teacher.LastName + "'" + ". ");
             m_teacher.EditTeacher(teacher);
             return RedirectToAction("Index");
-            
         }
         [HttpPost]
         public JsonResult DeleteTeacher(int id)
         {
+            logger.Info("'Справочник преподавателей' Пользователь " + "'" + User.Identity.Name + "'" + " удалил преподавателя");
             m_teacher.DeleteTeacher(id);
             return Json(true);
         }
-
         public ActionResult LoadList()
         {
             return View();
         }
-       
         [HttpPost]
         public ActionResult Upload()
         {
@@ -78,11 +83,10 @@ namespace libbook.Controllers
                 //
                 StreamReader stream = new StreamReader(Request.Files[0].InputStream);
                 string x = stream.ReadToEnd();
-                string[] lines = x.Split(Environment.NewLine.ToCharArray(),StringSplitOptions.RemoveEmptyEntries);
+                string[] lines = x.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
                 foreach (var line in lines)
                 {
                     var parts = line.Split(';');
-
                     if (parts.Length >= 2)
                     {
                         vTeacher teacher = new vTeacher
@@ -96,7 +100,6 @@ namespace libbook.Controllers
                     }
                 }
             }
-
             return RedirectToAction("Index");
         }
     }
