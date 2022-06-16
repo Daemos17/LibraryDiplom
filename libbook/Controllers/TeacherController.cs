@@ -5,6 +5,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using datamodel;
+using NLog;
 
 namespace libbook.Controllers
 {
@@ -12,8 +13,13 @@ namespace libbook.Controllers
     public class TeacherController : Controller
     {
         Services.Teacher m_teacher = new Services.Teacher();
+
+        private static Logger logger = LogManager.GetLogger("f");
+
         public ActionResult Index()
         {
+            logger.Info("Пользователь " + "'" + User.Identity.Name + "'" + " перешел на страницу 'Справочник преподавателей'");
+
             var teachers = m_teacher.GetAllTeachers();
             return View(teachers);
         }
@@ -30,29 +36,41 @@ namespace libbook.Controllers
 
         public ActionResult Add()
         {
+            logger.Info("'Справочник преподавателей' Ожидание добавления преподавателя...");
+
             return View();
         }
         
         public ActionResult AddTeacher(datamodel.vTeacher teacher)
         {
+            logger.Info("'Справочник преподавателей' Пользователь " + "'" + User.Identity.Name + "'" + " добавил преподавателя: " + "'" + teacher.FirstName + " " + teacher.SecondName + " " + teacher.LastName + "'" + ". ");
+
             int id = m_teacher.AddTeacher(teacher); 
             return RedirectToAction("Index");
         }
 
         public ActionResult Delete(int id)
         {
+
+            logger.Info("'Справочник преподавателей' Ожидание удаления преподавателя...");
+
             ViewBag.TeacherId = id;
             return View();
         }
 
         public ActionResult Edit(int id)
         {
+            logger.Info("'Справочник преподавателей' Ожидание редактирования преподавателя...");
+
+
             var teacher = m_teacher.GetTeacherById(id);
             return View(teacher);
         }
 
         public ActionResult EditTeacher(vTeacher teacher)
         {
+            logger.Info("'Справочник преподавателей' Пользователь " + "'" + User.Identity.Name + "'" + " редактировал преподавателя: " + "'" + teacher.FirstName + " " + teacher.SecondName + " " + teacher.LastName + "'" + ". ");
+
             m_teacher.EditTeacher(teacher);
             return RedirectToAction("Index");
             
@@ -60,6 +78,8 @@ namespace libbook.Controllers
         [HttpPost]
         public JsonResult DeleteTeacher(int id)
         {
+            logger.Info("'Справочник преподавателей' Пользователь " + "'" + User.Identity.Name + "'" + " удалил преподавателя");
+
             m_teacher.DeleteTeacher(id);
             return Json(true);
         }

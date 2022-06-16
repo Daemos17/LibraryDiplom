@@ -6,7 +6,7 @@ using System.Web.Mvc;
 using datamodel;
 using Services;
 using Microsoft.EntityFrameworkCore;
-
+using NLog;
 
 
 namespace libbook.Controllers
@@ -17,10 +17,14 @@ namespace libbook.Controllers
         Services.Book bookServ = new Services.Book();
 
         datamodel.Entities2 db=new Entities2();
-       
+
+
+        private static Logger logger = LogManager.GetLogger("f");
+
         // GET: Student
         public ActionResult Index()
         {
+            logger.Info("Пользователь " + "'" + User.Identity.Name + "'" + " перешел на страницу 'Выдача книг'");
             return View();
            
         }

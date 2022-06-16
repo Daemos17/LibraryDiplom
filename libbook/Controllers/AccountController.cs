@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Security;
+using NLog;
 
 
 namespace libbook.Controllers
@@ -13,27 +14,32 @@ namespace libbook.Controllers
     {
         Services.Account m_account = new Services.Account();
         // GET: Student
-        public ActionResult Login(string returnUrl)
+        private static Logger logger = LogManager.GetLogger("f");
+        public ActionResult Login()
         {
-            ViewBag.returnUrl = returnUrl;
+            logger.Info("Ожидание авторизации...");
             return View();
         }
 
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Login(datamodel.Account account, string returnUrl)
+        public async Task<ActionResult> Login(datamodel.Account account)
         {
             var user = m_account.GetAccountByLoginPassword(account.Login, account.Password);
             if (user == null)
             {
+                logger.Warn("Ошибка авторизации! Введен неверный логин и/или пароль.");
                 ModelState.AddModelError("", "Некорректное имя или пароль.");
             }
             else
             {
+                logger.Info("Успешная авторизация! Пользователь " + "'" + user.Login + "'" + " выполнил вход в аккаунт.");
                 FormsAuthentication.SetAuthCookie(account.Login, true);
+
                 //логируем время
                 m_account.SetLoginDateTime(user.Id);
+
                 return RedirectToAction("Index", "LendingBook");
             }
             return View(account);
@@ -41,6 +47,8 @@ namespace libbook.Controllers
 
         public ActionResult Index()
         {
+            logger.Info("Пользователь " + "'" + User.Identity.Name + "'" + " перешел на страницу 'Профиль'");
+
             var user = m_account.GetAccountByLogin(User.Identity.Name);
             datamodel.Entities2 db = new datamodel.Entities2();
 
@@ -50,12 +58,14 @@ namespace libbook.Controllers
 
         public ActionResult Edit(int id)
         {
+            logger.Info("'Профиль' Изменение персональных данных");
             var account = m_account.GetAccountById(id);
             return View(account);
         }
 
         public ActionResult Delete(int id)
         {
+            logger.Info("'Профиль' Удаление сотрудника");
             var account = m_account.GetAccountById(id);
             if (account != null)
                 return PartialView(account);
@@ -64,12 +74,14 @@ namespace libbook.Controllers
 
         public ActionResult DeleteAccount(int id)
         {
+            logger.Info("'Профиль' Сотрудник удалён");
             //удаление
             return View();
         }
 
         public ActionResult Logout()
         {
+            logger.Info("Пользователь " + "'" + User.Identity.Name + "'" + " вышел из аккаунта.");
             var user = User.Identity.Name;
             var account = m_account.GetAccountByLogin(user);
             FormsAuthentication.SignOut();
@@ -80,10 +92,18 @@ namespace libbook.Controllers
         [HttpPost]
         public ActionResult Edit(datamodel.vAccount account)
         {
+            logger.Info("'Профиль' Ожидание редактирования пользователей...");
             var result = m_account.EditUser(account);
-            if(result)
-                return RedirectToAction("Index");//всё норм
-            return RedirectToAction("Index");//должна быть инфа об ошибке
+            if (result)
+            {
+                logger.Info("'Профиль' Успешное редактирование!");
+            }
+            else
+            {
+                logger.Warn("'Профиль' Ошибка редактирования!");
+                return RedirectToAction("Index");
+            }
+            return RedirectToAction("Index");
         }
 
         // 
