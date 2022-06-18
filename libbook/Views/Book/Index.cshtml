@@ -26,6 +26,21 @@
     <title>Справочник Книг</title>
 </head>
 <body>
+    <div id="addDialog" class="modal fade">
+        <div id="dialogContentAdd" class="modal-dialog"></div>
+    </div>
+
+    <div id="deleteDialog" class="modal fade">
+        <div id="dialogContentDelete" class="modal-dialog"></div>
+    </div>
+
+    <div id="EditDialog" class="modal fade">
+        <div id="dialogContentEdit" class="modal-dialog"></div>
+    </div>
+
+    <div id="loadListDialog" class="modal fade">
+        <div id="dialogContentLoad" class="modal-dialog"></div>
+    </div>
 
     <form asp-controller="Book" asp-action="Index">
         <p>
@@ -35,25 +50,25 @@
     </form>
     <br />
 
-    @Html.ActionLink("Печать кодов","GenerateBarCode","Book")
-    <div>
-        @if (Model.Any())
-        {
-            <table class="table">
-                <tr>
-                    <th>№</th>
-                    <th>Название</th>
-                    <th>Автор</th>
-                    <th>Издатель</th>
-                    <th>Год издания</th>
-                    <th>Инвертарный номер</th>
-                    <th>Действия</th>
+    @Html.ActionLink("Печать кодов", "GenerateBarCode", "Book")
+<div>
+    @if (Model.Any())
+    {
+        <table class="table">
+            <tr>
+                <th>№</th>
+                <th>Название</th>
+                <th>Автор</th>
+                <th>Издатель</th>
+                <th>Год издания</th>
+                <th>Инвертарный номер</th>
+                <th>Действия</th>
 
-                </tr>
-                @foreach (var item in Model)
+            </tr>
+            @foreach (var item in Model)
+            {
+                if (item.IsReserved == false)
                 {
-                    if (item.IsReserved == false)
-                    {
                     <tr>
                         <td>
                             @Html.DisplayFor(modelItem => item.Id)
@@ -84,27 +99,36 @@
 
                         </td>
                     </tr>
-                    }
                 }
-            </table>
-        }
-        else
-        {
-            <p>Нет данных</p>
-        }
+            }
+        </table>
+    }
+    else
+    {
+        <p>Нет данных</p>
+    }
 
-        @Html.ActionLink("Добавить +", "Add", "Book")
-
-        @if (TempData["message"] != null)
-        {
-    <script type="text/javascript">
+    
+    <a href="Add" id="addLink" class="btn btn-primary stretched-link">Добавить</a>
+    @if (TempData["message"] != null)
+    {
+        <script type="text/javascript">
 
                     alert(@Html.Raw(Json.Encode(TempData["message"])));
-    </script>
+        </script>
 
-        }
-    </div>
+    }
+</div>
 
 
 </body>
 </html>
+<script>
+    $("#addLink").click(function (e) {
+        e.preventDefault();
+        $.get(this.href, function (data) {
+            $('#dialogContentAdd').html(data);
+            $('#addDialog').modal('show');
+        });
+    });
+</script>

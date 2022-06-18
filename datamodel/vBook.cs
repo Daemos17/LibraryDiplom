@@ -12,13 +12,18 @@ namespace datamodel
     using System;
     using System.Collections.Generic;
     
-    public partial class vStudent
+    public partial class vBook
     {
+        public int Id { get; set; }
         public string FirstName { get; set; }
         public string SecondName { get; set; }
-        public string LastName { get; set; }
-        public string GroupLittleName { get; set; }
-        public string GroupFullName { get; set; }
-        public int Id { get; set; }
+        public string BookName { get; set; }
+        public Nullable<System.DateTime> Year { get; set; }
+        public string InventoryNum { get; set; }
+        public string Comment { get; set; }
+        public Nullable<bool> IsReserved { get; set; }
+        public string GUID { get; set; }
+        public string CategoryName { get; set; }
+        public string MakerName { get; set; }
     }
 }

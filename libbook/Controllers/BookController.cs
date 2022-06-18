@@ -74,7 +74,6 @@ namespace libbook.Controllers
             return View(list);
         }
 
-
         public ActionResult GenerateGuid(int id)
         {
             bookServ.AddGuid(id);
@@ -83,11 +82,6 @@ namespace libbook.Controllers
             return RedirectToAction("Index");
 
         }
-
-
-
-       
-
 
         [HttpGet]
         public ActionResult Edit(int id)
@@ -123,18 +117,15 @@ namespace libbook.Controllers
             var categories = bookServ.GetAllCategories();
             var book = new datamodel.Book();
 
-
             SelectList author = new SelectList(authors, "Id", "FullName", book.Author_id);
             SelectList maker = new SelectList(makers, "Id_maker", "MakerName", book.Maker_id);
             SelectList category = new SelectList(categories, "Id_category", "CategoryName", book.Category_id);
-
 
             ViewBag.Authors = author;
             ViewBag.Categories = category;
             ViewBag.Makers = maker;
 
             return View(book);
-
         }
 
 
@@ -143,10 +134,7 @@ namespace libbook.Controllers
         [HttpPost]
         public ActionResult Add(datamodel.Book book)
         {
-
             bookServ.CreateBook(book);
-
-
             return RedirectToAction("Index");
         }
 
@@ -154,7 +142,7 @@ namespace libbook.Controllers
 
         public ActionResult Delete(int id)
         {
-            if (id != null)
+            if (id != 0)
             {
                 datamodel.Book book = bookServ.GetById(id);
                 if (book != null)

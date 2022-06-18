@@ -53,61 +53,37 @@ namespace libbook.Controllers
         }
 
         [HttpGet]
-        public ActionResult Capture()
+        public ActionResult OpenCapture(int idSt)
         {
-            return View();
+            ViewBag.IdStudent = idSt;
+            return View("Capture");
         }
 
 
         [HttpPost]
-        public ActionResult Capture(string filePath)
+        public ActionResult Capture(string filePath, int idSt)
         {
             Bitmap image;
-
             image = Base64StringToBitmap(filePath);
-
             string res = ExtractQRCodeMessageFromImage(image);
-            //GaussianBlur blur = new GaussianBlur(image);
-            //image = blur.Process(2);
-            //var options = new DecodingOptions { PossibleFormats = new List<BarcodeFormat> { BarcodeFormat.QR_CODE }, TryHarder = true };
-            //using (image)
-            //{
-            //    LuminanceSource source;
-            //    source = new BitmapLuminanceSource(image);
-            //    BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
-
-            //     result = new MultiFormatReader().decode(bitmap);
-
-            //    var reader = new BarcodeReader(null, null, ls => new GlobalHistogramBinarizer(ls)) { AutoRotate = false, TryInverted = false, Options = options };
-            //    var result1 = reader.Decode(image);
-
-            //}
-
-            //if (result == null)
-            //    return new ContentResult() { Content = "<script language='javascript' type='text/javascript'>alert('Try Again!');</script>" };
-          
+            
             if(res!= "QRCode couldn't be decoded.")
             {
                 var book = serv.FindByGuid(res);
                 if (book != null)   
                 {
-
-                    return Json(new { redirectToUrl = Url.Action("LendBook", "LendingBook", new { bookId = book.Id }) });
+                    return Json(new { redirectToUrl = 
+                        Url.Action("LendBook", "LendingBook", new {idStudent = idSt, idBook = book.GUID }) });
                 }
                 else
                 {
-                    return Json(new { redirectToUrl = Url.Action("Index", "Camera", new { result = res }) });
+                    return Json(new { redirectToUrl = Url.Action("Index", "OpenCamera", new { idSt = idSt }) });
                 }
-
             }
             else
             {
-                return Json(new { redirectToUrl = Url.Action("Index", "Camera", new { result = res }) });
+                return Json(new { redirectToUrl = Url.Action("Index", "LendingBook", new {idStudent = idSt}) });
             }
-
-
-            //return RedirectToAction("Index", new { result =result});
-           
         }
 
 

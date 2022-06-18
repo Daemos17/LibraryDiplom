@@ -10,7 +10,6 @@
 <table class="table table-hover" id="studentTable">
     <thead>
         <tr>
-
             <th scope="col" hidden></th>
             <th scope="col">№</th>
             <th scope="col">Фамилия</th>
@@ -19,32 +18,56 @@
             <th scope="col">Группа</th>
             <th scope="col">Действие</th>
         </tr>
+        @if (ViewBag.Student != null)
+        {
+            <tr>
+                <td>1</td>
+                <td>
+                    @ViewBag.Student.FirstName
+                </td>
+                <td>
+                    @ViewBag.Student.SecondName
+                </td>
+                <td>
+                    @ViewBag.Student.LastName
+                </td>
+                <td>
+                    @ViewBag.Student.GroupLittleName
+                </td>
+            </tr>
+        }
     </thead>
     <tbody>
     </tbody>
 </table>
 
 
-@if (Request.Browser.IsMobileDevice)
+@if (!Request.Browser.IsMobileDevice)
 {
-<button class="btn btn-primary" onclick="window.location.href='@Url.Action("Capture", "Camera")'">Сканировать QR - код</button>
+    <button class="btn btn-primary" onclick="openCamera()">Сканировать QR - код</button>
 }
-
-
 
 <div class="form-group">
     <label for="bookName">Название книги</label>
-    <input type="text" class="form-control" id="bookName" aria-describedby="bookHelp" placeholder="Введите название книги">
+    @if (ViewBag.Book != null)
+    {
+        <input type="text" class="form-control" id="bookName" aria-describedby="bookHelp" placeholder="Введите название книги" value="ViewBag.Book">
+     }
+    else
+    {
+        <input type="text" class="form-control" id="bookName" aria-describedby="bookHelp" placeholder="Введите название книги">
+
+    }
     <small id="bookHelp" class="form-text text-muted">Начните название книги или автора книги</small>
 </div>
 <table class="table table-hover" id="bookTable">
     <thead>
         <tr>
             <th scope="col">№</th>
-            <th scope="col">Автор</th>
             <th scope="col">Название</th>
-            <th scope="col">Год выпуска</th>
-            <th scope="col">Количество в наличии</th>
+            <th scope="col">Издательство</th>
+            <th scope="col">Автор</th>
+            <th scope="col">Номер</th>
         </tr>
 
 
@@ -53,31 +76,58 @@
     </tbody>
 </table>
 
-
-
-
-
-
 <script type="text/javascript">
+    var idSt = 0;
+                function openCamera() {
+                    window.location.href = '/Camera/OpenCapture?idSt=' + idSt;
+                    //$.get("/Camera/OpenCapture", {
+                    //    idStudent: idSt
+                    //}, function (data) {
+                    //    bookInput.val(data);
+                    //});
+                }
 
     $(document).ready(function () {
+                    let timeForWait = 3;//ожидание автовыдачи 3 секунды
+                    var bookIsLending = false;
+
+                    var idBook = 0;
+
         //выбор из таблицы студентов
         $('#studentTable').on('click', 'tbody tr', function (event) {
-          
-          
-                window.location.href = "@Url.Action("LendStudent", "LendingBook")?studentId=" + $(this).attr('id');
-
-                $('#studentTable tr').removeClass('active');
-                $(this).addClass('active');
-            
-        });
+                idSt = $(this).attr('id');
+            $('#studentTable tr').removeClass('active');
+            $(this).addClass('active');
+            });
         //выбор строки из таблицы книг
-        $('#bookTable').on('click', 'tbody tr', function (event) {
-            console.log($(this).attr('id'));
+        $('#bookTable').on('click', 'tbody>tr', function () {
+                let elapsedTime = 0;//обнуление времени выдачи
+                idBook = $(this).attr('id');
 
             $('#bookTable tr').removeClass('active');
             $(this).addClass('active');
-        });
+
+                let timerId = setInterval(function () {
+                    if (elapsedTime < timeForWait) {
+                        console.log(elapsedTime);
+                        ++elapsedTime;
+                    }
+                    else {
+                        clearInterval(timerId);
+                    $.get("/LendingBook/LendingBookForStudent", {
+                        idSt: idSt,
+                        idBook: idBook
+                    }, function (data) {
+                            if (data.res == "ok")
+                                //alert("книга выдана");
+                                refreshTables();
+                        });
+                        //console.log(elapsedTime);
+                    }
+                }, 1000);
+
+
+            });
 
         var studentInput = $('#fioStudent');
         var bookInput = $('#bookName');
@@ -86,63 +136,79 @@
             var t = studentInput.val();
             if (t.length >= 3) {
                 $.get("/Student/Autocomplete", {
-                    term: t
+            term: t
                 }, function (data) {
-                    createTableStudent(data);
-                });
+                createTableStudent(data);
+            });
             }
-        });
+    });
         //ввод в поле книги
-        bookInput.keyup(function () {
-            var t = bookInput.val();
-            if (t.length >= 3) {
+        bookInput.on('input', function () {
+        var t = bookInput.val();
+        if (t.length >= 3) {
                 $.get("/Book/Autocomplete", {
-                    term: t
+            term: t
                 }, function (data) {
-                    createTableBook(data);
-                });
-            }
-        });
+                createTableBook(data);
+            });
+        }
+    });
         //заполнение таблицы студентов
         function createTableStudent(data) {
-            var tableRows = $('#studentTable').find('tr');
-            for (var i = 1; i < tableRows.length; i++) {
-                tableRows[i].remove();
-            }
+        var tableRows = $('#studentTable').find('tr');
+        for (var i = 1; i < tableRows.length; i++) {
+            tableRows[i].remove();
+        }
 
-            for (i = 0; i < data.student.length; i++) {
+        for (i = 0; i < data.student.length; i++) {
                 $('#studentTable > tbody').append('<tr id=' + data.student[i].Id + '></tr>');
                 $('#studentTable > tbody > tr:last').append('<td id="studentId" hidden>' + data.student[i].Id + '</td>');
                 $('#studentTable > tbody > tr:last').append('<td>' + (i + 1) + '</td>');
                 $('#studentTable > tbody > tr:last').append('<td>' + data.student[i].FirstName + '</td>');
                 $('#studentTable > tbody > tr:last').append('<td>' + data.student[i].SecondName + '</td>');
                 $('#studentTable > tbody > tr:last').append('<td>' + data.student[i].LastName + '</td>');
-                $('#studentTable > tbody > tr:last').append('<td>' + data.student[i].LittleName + '</td>');
+                $('#studentTable > tbody > tr:last').append('<td>' + data.student[i].GroupLittleName + '</td>');
 
-            }
-            if (data.student.length == 1) {
+        }
+        if (data.student.length == 1) {
                 $('#studentTable > tbody > tr:last').click();
-            }
+        }
+    }
+
+    //заполнение таблицы книг
+    function createTableBook(data) {
+        var tableRows = $('#bookTable').find('tr');
+        for (var i = 1; i < tableRows.length; i++) {
+            tableRows[i].remove();
         }
 
-        //заполнение таблицы книг
-        function createTableBook(data) {
-            var tableRows = $('#bookTable').find('tr');
-            for (var i = 1; i < tableRows.length; i++) {
-                tableRows[i].remove();
-            }
-
-            for (i = 0; i < data.books.length; i++) {
+        for (i = 0; i < data.books.length; i++) {
                 $('#bookTable > tbody').append('<tr id=' + data.books[i].Id + '></tr>');
                 $('#bookTable > tbody > tr:last').append('<td id="bookId" hidden>' + data.books[i].Id + '</td>');
                 $('#bookTable > tbody > tr:last').append('<td>' + (i + 1) + '</td>');
                 $('#bookTable > tbody > tr:last').append('<td>' + data.books[i].BookName + '</td>');
-
-            }
-            if (data.books.length == 1) {
-                $('#bookTable > tbody > tr:last').click();
-            }
+                $('#bookTable > tbody > tr:last').append('<td>' + data.books[i].MakerName + '</td>');
+                $('#bookTable > tbody > tr:last').append('<td>' + data.books[i].FirstName + " " + data.books[i].SecondName[0] + "." + '</td>');
+                $('#bookTable > tbody > tr:last').append('<td>' + data.books[i].InventoryNum + '</td>');
         }
+        //if (data.books.length == 1) {
+        //    bookInput.val("");
+        //        $('#bookTable > tbody > tr:last').click();
+        //}
+    }
+
+    //сборос книг и студентов
+    function refreshTables() {
+        var tableRows = $('#studentTable').find('tr');
+        for (var i = 1; i < tableRows.length; i++) {
+            tableRows[i].remove();
+        }
+        var tableRows2 = $('#bookTable').find('tr');
+        for (var i = 1; i < tableRows2.length; i++) {
+            tableRows2[i].remove();
+        }
+    }
+
 
     });
 

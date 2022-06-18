@@ -21,10 +21,8 @@
         <AssociationConnector Association="Model.FK_Books_Authors" />
         <AssociationConnector Association="Model.FK_Books_Categories" />
         <AssociationConnector Association="Model.FK_Books_Makers" />
-        <EntityTypeShape EntityType="Model.ReaderBook" Width="1.5" PointX="10.125" PointY="4" />
-        <AssociationConnector Association="Model.FK_ReaderBooks_Books" />
-        <AssociationConnector Association="Model.FK_ReaderBooks_Students" />
-        <AssociationConnector Association="Model.FK_ReaderBooks_Teachers" />
+        <EntityTypeShape EntityType="Model.vBook" Width="1.5" PointX="9.375" PointY="7.75" />
+        <EntityTypeShape EntityType="Model.ReaderBook" Width="1.5" PointX="9.375" PointY="0.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

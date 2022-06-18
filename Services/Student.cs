@@ -28,19 +28,19 @@ namespace Services
                              StringSplitOptions.RemoveEmptyEntries);
 
             var students = db.vStudents.AsEnumerable();
-
+            List<datamodel.vStudent> lst = new List<vStudent>();
             foreach (var part in parts)
             {
-                students = students.Where(
+                lst.AddRange(students.Where(
                     p => p.FirstName.Contains(part) ||
                     p.LastName.Contains(part) ||
                     p.SecondName.Contains(part) ||
                     p.GroupFullName.Contains(part) ||
                     p.GroupLittleName.Contains(part)
-                    );
+                    ));
             }
 
-            return students.ToList();
+            return lst;
         }
 
         

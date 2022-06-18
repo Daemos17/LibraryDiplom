@@ -122,21 +122,60 @@ namespace Services
         }
 
 
-        public List<datamodel.Book> GetBooks(string term)
+        public List<datamodel.vBook> GetBooks(string term)
         {
-            var t = db.Books.Where(p => p.BookName.StartsWith(term));
+            var isGuid = Guid.TryParse(term, out Guid result);
+            //если guid
+            if (isGuid)
+            {
+                var t = db.vBooks.FirstOrDefault(p => p.GUID == term);
+                //guid нашли в базе, возвратим книгу с этим guid
+                if(t!=null)
+                {
+                    List<datamodel.vBook> lst = new List<datamodel.vBook>();
+                    lst.Add(t);
+                    return lst;
+                }
+                //guid не нашли
+                else
+                {
+                    return null;
+                }
+            }
+            else
+            {
+                var parts = term.Split(new char[] { ' ' },
+                                 StringSplitOptions.RemoveEmptyEntries);
 
-            return t.ToList();
+                var books = db.vBooks.AsEnumerable();
+                List<datamodel.vBook> lst = new List<datamodel.vBook>();
+                foreach (var part in parts)
+                {
+                    lst.AddRange(books.Where(
+                        p => p.FirstName.Contains(part) ||
+                        p.SecondName.Contains(part) ||
+                        p.BookName.Contains(part) ||
+                        p.MakerName.Contains(part) ||
+                        p.CategoryName.Contains(part)
+                        ));
+                }
+                return lst;
+            }
         }
 
 
         public void EditBook(datamodel.Book b)
         {
-            datamodel.Book book = new datamodel.Book {Id=b.Id, Author_id=b.Author_id,BookName=b.BookName,
-            Maker_id=b.Maker_id,Year=b.Year,InventoryNum= "ИНВ №"+b.InventoryNum};
+            datamodel.Book book = new datamodel.Book {
+                Id=b.Id, 
+                Author_id=b.Author_id,
+                BookName=b.BookName,
+                Maker_id=b.Maker_id,
+                Year=b.Year,
+                InventoryNum= "ИНВ №"+b.InventoryNum
+            };
             db.Entry(book).State = EntityState.Modified;
             db.SaveChanges();
-            
         }
 
 
@@ -145,7 +184,6 @@ namespace Services
         {
             if (id != null)
             {
-
                 datamodel.Book book =db.Books.FirstOrDefault(p => p.Id == id);
                 db.Books.Remove(book);
                 db.SaveChanges();

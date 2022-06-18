@@ -2,72 +2,69 @@
 
 @{
     ViewBag.Title = "Добавление книги";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = null;
 }
+        
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Добавление книги</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            @using (Html.BeginForm())
+            {
+                <div class="modal-body">
+                    <fieldset>
+                        <div class="form-group">
+                            <label for="inputFirstname">Название</label>
+                            <input type="text" class="form-control" name="BookName" placeholder="Название">
+                        </div>
+                        <div class="form-group">
+                            <label for="inputFirstname">Год</label>
+                            <input type="text" class="form-control" name="Year" placeholder="Год">
+                        </div>
+                        <div class="form-group">
+                            <label for="inputFirstname">Инвертарный номер</label>
+                            <input type="text" class="form-control" name="InventoryNum" placeholder="Инвертарный номер">
+                        </div>
 
+                        <div class="form-group">
+                            <label for="inputFirstname">Комментарий</label>
+                            <input type="text" class="form-control" name="Comment" placeholder="Комментарий">
+                        </div>
 
-<!DOCTYPE html>
+                        <div class="form-group">
+                            <label for="inputFirstname">Автор</label>
+                            @Html.DropDownListFor(model => model.Author_id, ViewBag.Authors as SelectList, new
+                       {
+                           @class = "form-control"
+                       })
+                        </div>
 
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title>Index</title>
-</head>
-<body>
-    <div>
-        <h2>Добавление новой книги </h2>
+                        <div class="form-group">
+                            <label for="inputFirstname">Категория</label>
+                            @Html.DropDownListFor(model => model.Category_id, ViewBag.Categories as SelectList, new
+                       {
+                           @class = "form-control"
+                       })
+                        </div>
+                        <div class="form-group">
+                            <label for="inputFirstname">Издательство</label>
+                            @Html.DropDownListFor(model => model.Maker_id, ViewBag.Makers as SelectList, new
+                       {
+                           @class = "form-control"
+                       })
+                        </div>
 
-        @using (Html.BeginForm())
-        {
-    <fieldset>
-        <legend>Новая книга</legend>
+                        <form asp-controller="Book" asp-action="Create" method="post">
+                            <input type="submit" value="Добавить книгу" class="btn btn-primary" data-dismiss="modal" />
+                        </form>
 
-        <p>
-            Название  <br />
-            @Html.EditorFor(model => model.BookName)
-        </p>
+                    </fieldset>
+                </div>
+                    }
+                </div>
+            </div>
 
-        <p>
-            Год  <br />
-            @Html.EditorFor(model => model.Year)
-        </p>
-
-        <p>
-            Инвертарный номер  <br />
-            ИНВ №@Html.EditorFor(model => model.InventoryNum)
-        </p>
-
-        <p>
-            Комментарий  <br />
-            @Html.EditorFor(model => model.Comment)
-        </p>
-
-        <p>
-            Автор <br />
-            @Html.DropDownListFor(model => model.Author_id, ViewBag.Authors as SelectList)
-        </p>
-
-        <p>
-            Категория <br />
-            @Html.DropDownListFor(model => model.Category_id, ViewBag.Categories as SelectList)
-        </p>
-
-        <p>
-            Издательство <br />
-            @Html.DropDownListFor(model => model.Maker_id, ViewBag.Makers as SelectList)
-        </p>
-
-        <form asp-controller="Book" asp-action="Create" method="post">
-            <input type="submit" value="Добавить книгу" />
-        </form>
-
-    </fieldset>
-        }
-        <div>
-            @Html.ActionLink("К списку книг", "Index")
-        </div>
-
-
-    </div>
-</body>
-</html>

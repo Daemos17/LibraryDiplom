@@ -176,6 +176,9 @@
     <Compile Include="vAccount.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
+    <Compile Include="vBook.cs">
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
     <Compile Include="vStudent.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
